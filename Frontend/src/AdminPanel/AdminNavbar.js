@@ -89,7 +89,7 @@ console.log(admin)
             {admin ? ( // Check if admin is logged in
               <div className="nav-item-content">
                 <button onClick={logout} className="block w-full text-left px-4 py-2 hover:bg-gray-700">
-                  Logout ({admin.name}) {/* Display logout button with admin name */}
+                  LogOut ({admin.name}) {/* Display logout button with admin name */}
                 </button>
               </div>
             ) : (
