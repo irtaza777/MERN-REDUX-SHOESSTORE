@@ -124,3 +124,11 @@ model ProductColor {
   color     Color    @relation(fields: [colorId], references: [id])
   colorId   Int
 }
+model Admin {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}

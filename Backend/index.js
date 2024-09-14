@@ -5,6 +5,9 @@ const cors = require('cors');
 // Initialize express app and Prisma client
 const app = express();
 const prisma = new PrismaClient();
+const jwt = require('jsonwebtoken');
+const jwtkey="shoestore"
+const bcrypt = require('bcrypt'); // For hashing passwords
 
 // Middleware
 app.use(cors()); // Enable CORS for cross-origin requests
@@ -394,6 +397,59 @@ app.post('/order', async (req, res) => {
       res.status(500).send('An error occurred while deleting the order');
     }
   });
+  app.post('/admin/create', async (req, res) => {
+    const { email, password, name } = req.body;
+  
+    try {
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      // Create the new admin
+      const newAdmin = await prisma.admin.create({
+        data: {
+          email,
+          password: hashedPassword,
+          name,
+        },
+      });
+  
+      res.status(201).json(newAdmin);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  app.post('/admin/login', async (req, res) => {
+    const { email, password } = req.body;
+  
+    try {
+      // Find the admin by email
+      const admin = await prisma.admin.findUnique({ where: { email } });
+      console.log('Admin found:', admin); // Check if the admin is found
+  
+      // Check if the admin exists and the password is correct
+      if (!admin) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+  
+      const passwordMatch = await bcrypt.compare(password, admin.password);
+      console.log('Password match:', passwordMatch); // Check if password matches
+  
+      if (!passwordMatch) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+  
+      // Create a JWT token
+      const token = jwt.sign({ admin: admin.email }, jwtkey, { expiresIn: '1h' });
+      console.log('Token created:', token); // Check if the token is created
+  
+      res.json({token,admin});
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
