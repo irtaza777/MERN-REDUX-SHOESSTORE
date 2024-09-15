@@ -32,6 +32,7 @@ model Category {
 model Brand {
   id        Int       @id @default(autoincrement())
   name      String    @unique
+  imageUrl  String?   // Make imageUrl optional
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

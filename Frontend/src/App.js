@@ -5,6 +5,9 @@ import AdminDashboard from './AdminPanel/AdminDashboard'; // Import other compon
 import AdminPanel from './AdminPanel/AdminPanel';
 import AdminAuthentication from './AdminPanel/AdminAuthentication';
 import PrivateComponent from './AdminPanel/PrivateComponent';
+import AddCategory from './AdminPanel/AddCategory';
+import ManageCategories from './AdminPanel/ManageCategories';
+import AddBrand from './AdminPanel/AddBrand';
 const App = () => {
   return (
     <BrowserRouter>
@@ -14,6 +17,10 @@ const App = () => {
           <Route element={<PrivateComponent />}>
 
           <Route path="/adminpanel/dashboard" element={<AdminDashboard />} /> {/* Other admin routes */}
+          <Route path="/adminpanel/AddCategory" element={<AddCategory />} /> {/* Add route for adding category */}
+          <Route path="/adminpanel/ManageCategories" element={<ManageCategories />} /> {/* Add route for adding category */}
+          <Route path="/adminpanel/AddBrands" element={<AddBrand />} /> {/* Add route for adding category */}
+
           </Route>
           {/* Add more admin routes here */}
         </Route>
