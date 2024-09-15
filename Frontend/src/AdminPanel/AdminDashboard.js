@@ -8,8 +8,8 @@ const AdminDashboard = () => {
   const admin = useSelector((state) => state.admin.admin);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Welcome, {admin.name}!</h1>
+    <div className="p-8 max-w-6xl mx-auto bg-gray-100 shadow-lg rounded-lg">
+    <h1 className="text-3xl font-bold text-gray-800 mb-6">Welcome, {admin.name}!</h1>
 
       <p className="mb-8 text-lg text-gray-700">
         This admin panel provides a comprehensive set of tools to manage your application efficiently. 
