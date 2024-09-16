@@ -41,7 +41,7 @@ const AdminAuthentication = () => {
 
     try {
       // Send POST request to the registration endpoint
-      const response = await axios.post('http://localhost:5000/admin/create', registerFormData);
+      const response = await axios.post('http://localhost:4000/admin/create', registerFormData);
 
       if (response.status === 201) {
         setRegisterMessage('Admin registered successfully. Now login yourself.'); // Success message
@@ -70,33 +70,44 @@ const AdminAuthentication = () => {
     e.preventDefault(); // Prevent the default form submission
     setLoginLoading(true); // Set loading state to true
     setLoginMessage(''); // Clear any previous messages
-
+  
     try {
       // Send POST request to the login endpoint
-      const response = await axios.post('http://localhost:5000/admin/login', loginFormData, {
+      const response = await axios.post('http://localhost:4000/admin/login', loginFormData, {
         headers: {
           'Content-Type': 'application/json', // Set content type for the request
         },
       });
-console.log("data",response.data)
+      
+      // Check if the request was successful (200 OK)
       if (response.status === 200) {
         const { token, admin } = response.data; // Destructure the token and admin from the response
-    console.log(admin)
+  
         setLoginMessage('Login successful!'); // Success message
         localStorage.setItem('admin', JSON.stringify(admin)); // Store admin data in localStorage
-        localStorage.setItem('token', (token)); // Store admin data in localStorage
+        localStorage.setItem('token', token); // Store token in localStorage
         dispatch(setAdmin(admin)); // Dispatch action to set admin in Redux store
         navigate('/adminpanel/dashboard'); // Navigate to the dashboard
-      } else {
-        setLoginMessage('Invalid login credentials.'); // Error message for invalid credentials
       }
     } catch (error) {
+      // Check if error is due to invalid credentials (401 status)
+      if (error.response && error.response.status === 401) {
+        setLoginMessage(error.response.data.error); // Display specific error message from backend
+      } 
+      // Handle internal server error (500 status)
+      else if (error.response && error.response.status === 500) {
+        setLoginMessage('Internal server error. Please try again later.');
+      } 
+      // Handle other possible errors
+      else {
+        setLoginMessage('An unknown error occurred. Please try again.');
+      }
       console.error('Error during login:', error); // Log error for debugging
-      setLoginMessage('Internal server error. Please try again later.'); // Display generic error message
     } finally {
       setLoginLoading(false); // Set loading state back to false
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

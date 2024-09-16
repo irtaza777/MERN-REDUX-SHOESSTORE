@@ -14,7 +14,7 @@ const adminSlice = createSlice({
     },
     clearAdmin(state) {
       state.admin = null;
-      localStorage.removeItem('admin'); // Clear from localStorage
+      localStorage.clear('admin'); // Clear from localStorage
     },
     addCategory(state, action) {
       state.categories.push(action.payload); // Push the new category into the categories array
@@ -31,6 +31,9 @@ const adminSlice = createSlice({
         state.categories[categoryIndex].name = name; // Update the category's name
       }
     },
+    setBrands(state, action) {
+      state.brands = action.payload; // Set brands list
+    },
     // New reducer for adding a brand
     addBrand(state, action) {
       state.brands.push(action.payload); // Push the new brand into the brands array
@@ -40,14 +43,11 @@ const adminSlice = createSlice({
       state.brands = state.brands.filter(brand => brand.id !== action.payload); // Remove brand by id
     },
     // New reducer for updating a brand by its id
-    updateBrand(state, action) {
-      const { id, name, logo } = action.payload; // Expecting an object with id, new name, and new logo
-      const brandIndex = state.brands.findIndex(brand => brand.id === id);
-      if (brandIndex !== -1) {
-        state.brands[brandIndex].name = name; // Update the brand's name
-        if (logo) {
-          state.brands[brandIndex].logo = logo; // Update the brand's logo if provided
-        }
+    updateBrand: (state, action) => {
+      const updatedBrand = action.payload;
+      const index = state.brands.findIndex((brand) => brand.id === updatedBrand.id);
+      if (index !== -1) {
+        state.brands[index] = updatedBrand; // Update the brand with new data, including the image URL
       }
     },
   },
@@ -60,6 +60,7 @@ export const {
   addCategory, 
   removeCategory, 
   updateCategory, 
+  setBrands,
   addBrand, 
   removeBrand, 
   updateBrand 

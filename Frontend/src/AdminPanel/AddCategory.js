@@ -47,7 +47,7 @@ const AddCategory = () => {
 
         try {
             // Make a POST request to the backend API to add the category
-            const response = await axios.post('http://localhost:5000/AdminPanel/AddCategory', categoryData, {
+            const response = await axios.post('http://localhost:4000/AdminPanel/AddCategory', categoryData, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${localStorage.getItem('token')}`, // Send token for authentication

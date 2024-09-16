@@ -14,7 +14,12 @@ const ManageCategories = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/AdminPanel/AllCategories');
+                const response = await axios.get('http://localhost:4000/AdminPanel/AllCategories',{
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                });
+               
                 setCategories(response.data);
             } catch (error) {
                 console.error('Error fetching categories:', error);
