@@ -26,8 +26,64 @@ cloudinary.config({
 // Multer storage configuration
 const upload = require('./upload');
 
+//Add new admin
+app.post('/admin/create', async (req, res) => {
+  const { email, password, name } = req.body;
+
+  try {
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create the new admin
+    const newAdmin = await prisma.admin.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+      },
+    });
+
+    res.status(201).json(newAdmin);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+// Admin login endpoint
+app.post('/admin/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Find the admin by email
+    const admin = await prisma.admin.findUnique({ where: { email } });
+    console.log('Admin found:', admin); // Check if the admin is found
+
+    // Check if the admin exists and the password is correct
+    if (!admin) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, admin.password);
+    console.log('Password match:', passwordMatch); // Check if password matches
+
+    if (!passwordMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Create a JWT token
+    const token = jwt.sign({ email: admin.email }, jwtkey, { expiresIn: '1h' });
+    console.log('Token created:', token); // Check if the token is created
+
+    return res.json({ token,admin });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 // Add a new category
-app.post('/AdminPanel/AddCategory', async (req, res) => {
+app.post('/AdminPanel/AddCategory',verifyToken, async (req, res) => {
   const { name } = req.body;
 
   // Validate that the category name is present
@@ -54,7 +110,7 @@ app.post('/AdminPanel/AddCategory', async (req, res) => {
 });
 
 // Backend route for fetching all categories
-app.get('/AdminPanel/AllCategories', async (req, res) => {
+app.get('/AdminPanel/AllCategories',verifyToken, async (req, res) => {
   try {
     const categories = await prisma.category.findMany();
     res.status(200).json(categories);
@@ -64,7 +120,7 @@ app.get('/AdminPanel/AllCategories', async (req, res) => {
 });
 
 // Update an existing category by ID
-app.put('/AdminPanel/UpdateCategory/:id', async (req, res) => {
+app.put('/AdminPanel/UpdateCategory/:id',verifyToken, async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
 
@@ -91,7 +147,7 @@ app.put('/AdminPanel/UpdateCategory/:id', async (req, res) => {
 });
 
 // Delete a category by ID
-app.delete('/AdminPanel/DeleteCategory/:id', async (req, res) => {
+app.delete('/AdminPanel/DeleteCategory/:id',verifyToken, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -110,7 +166,7 @@ app.delete('/AdminPanel/DeleteCategory/:id', async (req, res) => {
 });
 
 // POST endpoint to add a new brand
-app.post('/AdminPanel/Brands', upload.single('logo'), async (req, res) => {
+app.post('/AdminPanel/Brands', upload.single('logo'),verifyToken, async (req, res) => {
   const { name } = req.body;
   let logoUrl;
 
@@ -158,6 +214,99 @@ app.post('/AdminPanel/Brands', upload.single('logo'), async (req, res) => {
 });
 
 
+
+//  Get All Brands
+app.get('/AdminPanel/AllBrands',verifyToken, async (req, res) => {
+  try {
+    const brands = await prisma.brand.findMany();
+    res.status(200).json(brands);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch brands' });
+  }
+});
+//  Delete Brand by ID
+app.delete('/AdminPanel/DeleteBrand/:id',verifyToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Check if the brand exists
+    const brand = await prisma.brand.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!brand) {
+      return res.status(404).json({ message: 'Brand not found' });
+    }
+
+    // Delete the brand
+    await prisma.brand.delete({
+      where: { id: parseInt(id) },
+    });
+
+    res.status(200).json({ message: 'Brand deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to delete brand' });
+  }
+});
+
+// Update Brand by ID
+
+app.put('/AdminPanel/UpdateBrand/:id',verifyToken, upload.single('logo'), async (req, res) => {
+  const { name } = req.body;
+  const { id } = req.params;
+  let logoUrl;
+
+  try {
+    // Validate brand name length
+    if (name.length < 3 || name.length > 50) {
+      return res.status(400).json({
+        message: 'Brand name must be between 3 and 50 characters.',
+      });
+    }
+
+    // Check if brand exists
+    const existingBrand = await prisma.brand.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!existingBrand) {
+      return res.status(404).json({ message: 'Brand not found.' });
+    }
+
+    // Check for duplicate brand name
+    const duplicateBrand = await prisma.brand.findUnique({
+      where: { name },
+    });
+    
+    if (duplicateBrand && duplicateBrand.id !== parseInt(id)) {
+      return res.status(400).json({ message: 'Brand name must be unique. This name already exists.' });
+    }
+
+    // Handle file upload if a new logo is provided
+    if (req.file) {
+      // Upload the new logo to Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path);
+      logoUrl = result.secure_url;
+    }
+
+    // Update the brand in the database
+    const updatedBrand = await prisma.brand.update({
+      where: { id: parseInt(id) },
+      data: {
+        name: name || existingBrand.name, // Keep the old name if not updated
+        imageUrl: logoUrl || existingBrand.imageUrl, // Keep the old logo if not updated
+      },
+    });
+
+    res.status(200).json({ message: 'Brand updated successfully!', brand: updatedBrand });
+  } catch (error) {
+    console.error('Error updating brand:', error);
+    res.status(500).json({ message: 'Failed to update brand', error: error.message });
+  }
+});
+
 // Add a new product
 app.post('/products', async (req, res) => {
   const { name, description, price, imageUrl, stock, categoryId, brandId, sizes, colors } = req.body;
@@ -182,7 +331,6 @@ app.post('/products', async (req, res) => {
     res.status(500).send('An error occurred while adding the product');
   }
 });
-
 // Get all products
 app.get('/products', async (req, res) => {
   try {
@@ -399,6 +547,22 @@ app.post('/login', async (req, res) => {
     res.status(500).send('An error occurred while logging in');
   }
 });
+//Token verification
+function verifyToken (req, res, next){
+  const token = req.headers.authorization?.split(' ')[1]; // Assuming the token is sent as 'Bearer token'
+
+  if (!token) {
+    return res.status(403).json({ message: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, jwtkey); // Replace with your secret key
+    req.admin = decoded; // You can access admin data from the token payload
+    next(); // Pass to the next middleware/route handler
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid or expired token' });
+  }
+};
 
 // Start the server
 const PORT = process.env.PORT || 4000;
