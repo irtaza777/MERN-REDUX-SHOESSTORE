@@ -1,42 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useDispatch } from 'react-redux';
-import { removeCategory, updateCategory } from '../Store/adminslice';
+import { useDispatch, useSelector } from 'react-redux';
+import {  deleteCategoryAsync, updateCategoryAsync, fetchCategoriesAsync } from '../Store/adminslice'; // Use your async thunks
 
 const ManageCategories = () => {
-    const [categories, setCategories] = useState([]);
     const [editMode, setEditMode] = useState(null);
     const [categoryName, setCategoryName] = useState('');
     const [message, setMessage] = useState('');
 
     const dispatch = useDispatch();
+    const categories = useSelector((state) => state.admin.categories); // Get categories from Redux state
+    const loading = useSelector((state) => state.admin.loading);
+    const error = useSelector((state) => state.admin.error);
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await axios.get('http://localhost:4000/AdminPanel/AllCategories',{
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
-                });
-               
-                setCategories(response.data);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        };
-        fetchCategories();
-    }, []);
+        dispatch(fetchCategoriesAsync()); // Fetch categories when component mounts
+    }, [dispatch]);
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:4000/AdminPanel/DeleteCategory/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            });
-            setCategories(categories.filter((category) => category.id !== id));
-            dispatch(removeCategory(id));
+            await dispatch(deleteCategoryAsync(id));
             setMessage('Category deleted successfully.');
         } catch (error) {
             console.error('Error deleting category:', error);
@@ -51,19 +33,8 @@ const ManageCategories = () => {
 
     const handleUpdate = async (id) => {
         try {
-            const response = await axios.put(`http://localhost:4000/AdminPanel/UpdateCategory/${id}`, {
-                name: categoryName,
-            }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            });
-
-            setCategories(categories.map((category) =>
-                category.id === id ? { ...category, name: response.data.name } : category
-            ));
+            await dispatch(updateCategoryAsync({ id, name: categoryName }));
             setEditMode(null);
-            dispatch(updateCategory(response.data));
             setMessage('Category updated successfully.');
         } catch (error) {
             console.error('Error updating category:', error);
@@ -73,8 +44,10 @@ const ManageCategories = () => {
 
     return (
         <div className="p-8 max-w-6xl mx-auto bg-gray-100 shadow-lg rounded-lg">
-        <h2 className="text-2xl font-bold mb-4">Manage Categories</h2>
+            <h2 className="text-2xl font-bold mb-4">Manage Categories</h2>
+            {loading && <div className="text-center text-blue-500 mb-4">Loading...</div>}
             {message && <div className="text-center text-green-500 mb-4">{message}</div>}
+            {error && <div className="text-center text-red-500 mb-4">{error}</div>}
 
             <div className="overflow-x-auto">
                 <table className="min-w-full bg-white border border-gray-300 rounded-lg overflow-hidden">

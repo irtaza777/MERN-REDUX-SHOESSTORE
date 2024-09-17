@@ -9,6 +9,7 @@ import AddCategory from './AdminPanel/AddCategory';
 import ManageCategories from './AdminPanel/ManageCategories';
 import AddBrand from './AdminPanel/AddBrand';
 import ManageBrands from './AdminPanel/ManageBrands';
+import AddProduct from './AdminPanel/AddProduct';
 const App = () => {
   return (
     <BrowserRouter>
@@ -22,6 +23,7 @@ const App = () => {
           <Route path="/adminpanel/ManageCategories" element={<ManageCategories />} /> {/* Add route for adding category */}
           <Route path="/adminpanel/AddBrands" element={<AddBrand />} /> {/* Add route for adding category */}
           <Route path="/adminpanel/ManageBrands" element={<ManageBrands />} /> {/* Add route for adding category */}
+          <Route path="/adminpanel/AddProduct" element={<AddProduct />} /> {/* Add route for adding category */}
 
           </Route>
           {/* Add more admin routes here */}

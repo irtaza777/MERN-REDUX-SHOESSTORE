@@ -253,22 +253,26 @@ app.delete('/AdminPanel/DeleteBrand/:id',verifyToken, async (req, res) => {
 
 // Update Brand by ID
 
-app.put('/AdminPanel/UpdateBrand/:id',verifyToken, upload.single('logo'), async (req, res) => {
+app.put('/AdminPanel/UpdateBrand/:id', verifyToken, upload.single('logo'), async (req, res) => {
   const { name } = req.body;
   const { id } = req.params;
   let logoUrl;
 
   try {
-    // Validate brand name length
-    if (name.length < 3 || name.length > 50) {
-      return res.status(400).json({
-        message: 'Brand name must be between 3 and 50 characters.',
-      });
+    // Parse and validate the brand ID
+    const brandId = parseInt(id);
+    if (isNaN(brandId)) {
+      return res.status(400).json({ message: 'Invalid brand ID.' });
     }
 
-    // Check if brand exists
+    // Validate brand name length (assuming minimum length is 3)
+    if (name && name.length < 3) {
+      return res.status(400).json({ message: 'Brand name must be at least 3 characters long.' });
+    }
+
+    // Check if the brand exists
     const existingBrand = await prisma.brand.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: brandId },
     });
 
     if (!existingBrand) {
@@ -276,27 +280,32 @@ app.put('/AdminPanel/UpdateBrand/:id',verifyToken, upload.single('logo'), async 
     }
 
     // Check for duplicate brand name
-    const duplicateBrand = await prisma.brand.findUnique({
-      where: { name },
-    });
-    
-    if (duplicateBrand && duplicateBrand.id !== parseInt(id)) {
-      return res.status(400).json({ message: 'Brand name must be unique. This name already exists.' });
+    if (name) {
+      const duplicateBrand = await prisma.brand.findUnique({
+        where: { name },
+      });
+      if (duplicateBrand && duplicateBrand.id !== brandId) {
+        return res.status(400).json({ message: 'Brand name must be unique. This name already exists.' });
+      }
     }
 
     // Handle file upload if a new logo is provided
     if (req.file) {
-      // Upload the new logo to Cloudinary
-      const result = await cloudinary.uploader.upload(req.file.path);
-      logoUrl = result.secure_url;
+      try {
+        // Upload the new logo to Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path);
+        logoUrl = result.secure_url;
+      } catch (uploadError) {
+        return res.status(500).json({ message: 'Failed to upload logo', error: uploadError.message });
+      }
     }
 
     // Update the brand in the database
     const updatedBrand = await prisma.brand.update({
-      where: { id: parseInt(id) },
+      where: { id: brandId },
       data: {
-        name: name || existingBrand.name, // Keep the old name if not updated
-        imageUrl: logoUrl || existingBrand.imageUrl, // Keep the old logo if not updated
+        name: name || existingBrand.name, // Use the existing name if not updated
+        imageUrl: logoUrl || existingBrand.imageUrl, // Use the existing logo if not updated
       },
     });
 
@@ -307,30 +316,99 @@ app.put('/AdminPanel/UpdateBrand/:id',verifyToken, upload.single('logo'), async 
   }
 });
 
+
 // Add a new product
-app.post('/products', async (req, res) => {
-  const { name, description, price, imageUrl, stock, categoryId, brandId, sizes, colors } = req.body;
+app.post('/AdminPanel/AddProduct', upload.single('image'), async (req, res) => {
+  console.log("Adding Product");
+  
+  const { name, description, price, stock, categoryId, brandId } = req.body;
+  console.log("Request Body:", req.body); // Log the incoming data
+
+  // Validation
+  if (!name || name.length < 5) {
+    return res.status(400).send('Product name is required and must be at least 5 characters long.');
+  }
+  
+  if (!description || description.length < 10) {
+    return res.status(400).send('Description is required and must be at least 10 characters long.');
+  }
+  
+  if (!price || isNaN(price) || parseFloat(price) <= 0) {
+    return res.status(400).send('Price must be a positive number.');
+  }
+
+  if (!stock || isNaN(stock) || parseInt(stock, 10) < 0) {
+    return res.status(400).send('Stock must be a non-negative number.');
+  }
 
   try {
+    // Handle image upload
+    let imageUrl;
+    const result = await cloudinary.uploader.upload(req.file.path);
+    imageUrl = result.secure_url;
+
+    // Check if category exists
+    const categoryExists = await prisma.category.findUnique({
+      where: { id: parseInt(categoryId, 10) },
+    });
+
+    if (!categoryExists) {
+      return res.status(400).send('Category does not exist');
+    }
+
+    // Check if brand exists
+    const brandExists = await prisma.brand.findUnique({
+      where: { id: parseInt(brandId, 10) },
+    });
+
+    console.log("Brand ID:", brandId); // Log the brandId for debugging
+
+    if (!brandExists) {
+      console.error(`Brand with ID ${brandId} does not exist.`);
+      return res.status(400).send(`Brand with ID ${brandId} does not exist.`);
+    }
+
+    // Create product with related data
     const newProduct = await prisma.product.create({
       data: {
         name,
         description,
-        price,
+        price: parseFloat(price), // Ensure price is a float
         imageUrl,
-        stock,
-        category: { connect: { id: categoryId } },
-        brand: { connect: { id: brandId } },
-        sizes: { connect: sizes.map(size => ({ id: size })) }, // Assuming ShoeSize records already exist
-        colors: { connect: colors.map(color => ({ id: color })) } // Assuming Color records already exist
+        stock: parseInt(stock, 10), // Ensure stock is an integer
+        categoryId: parseInt(categoryId, 10), // Convert to integer
+        brandId: parseInt(brandId, 10),       // Convert to integer
       },
     });
+
     res.status(201).json(newProduct);
   } catch (error) {
-    console.error(error);
+    console.error('Error adding product:', error);
     res.status(500).send('An error occurred while adding the product');
   }
 });
+//Shoesize
+
+// In your Express app
+app.post('/AdminPanel/Product/shoeSizes', verifyToken, async (req, res) => {
+  const { size } = req.body;
+
+  if (!size) {
+    return res.status(400).json({ message: 'Shoe size is required' });
+  }
+
+  try {
+    const newShoeSize = await prisma.shoeSize.create({
+      data: { size: size },
+    });
+    res.status(201).json(newShoeSize);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to create shoe size' });
+  }
+});
+
+
 // Get all products
 app.get('/products', async (req, res) => {
   try {

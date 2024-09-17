@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addCategory } from '../Store/adminslice';
+import { addCategoryAsync } from '../Store/adminslice';
 
 const AddCategory = () => {
     const [categoryData, setCategoryData] = useState({
         name: '', // Category name input
     });
     const [message, setMessage] = useState(''); // Message for success/error feedback
-    const [loading, setLoading] = useState(false); // Loading state for button
     const dispatch = useDispatch();
     const categories = useSelector((state) => state.admin.categories); // Fetching categories from Redux state
+    const loading = useSelector((state) => state.admin.loading); // Loading state from Redux
+    const error = useSelector((state) => state.admin.error); // Error state from Redux
+
+    // Reset message when the component first renders or when there's an error
+    useEffect(() => {
+        if (error) {
+            setMessage(error);
+        }
+    }, [error]);
 
     // Handle input change
     const handleChange = (e) => {
@@ -36,45 +43,27 @@ const AddCategory = () => {
         // Validate the category name
         if (!validateCategoryName()) return;
 
-        setLoading(true); // Set loading state
-
         // Check if category already exists locally (client-side validation)
         if (Array.isArray(categories) && categories.some(category => category.name.toLowerCase() === categoryData.name.toLowerCase())) {
             setMessage('Category already exists. Please enter a unique category name.');
-            setLoading(false);
             return;
         }
 
-        try {
-            // Make a POST request to the backend API to add the category
-            const response = await axios.post('http://localhost:4000/AdminPanel/AddCategory', categoryData, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`, // Send token for authentication
-                },
-            });
+        // Dispatch the thunk to add the category
+        await dispatch(addCategoryAsync(categoryData));
 
-            if (response.status === 201) {
-                setMessage('Category added successfully!');
-                setCategoryData({ name: '' }); // Reset form input
-                dispatch(addCategory(response.data)); // Dispatch the new category to Redux state
-            }
-        } catch (error) {
-            console.error('Error during category submission:', error);
-            if (error.response && error.response.data.message) {
-                setMessage(error.response.data.message); // Show the server's error message
-            } else {
-                setMessage('An internal error occurred. Please try again.');
-            }
-        } finally {
-            setLoading(false); // Reset loading state
+        // Show success message if no error after dispatch
+        if (!error) {
+            setMessage('Category added successfully!');
+            // Reset category data after successful addition
+            setCategoryData({ name: '' });
         }
     };
 
     return (
         <div className="p-8 max-w-5xl mx-auto bg-gray-100 shadow-lg rounded-lg">
             <h2 className="text-2xl font-bold mb-4">Add New Category</h2>
-            {message && <div className="mb-4 text-center text-red-500">{message}</div>}
+            {message && <div className={`mb-4 text-center ${error ? 'text-red-500' : 'text-green-500'}`}>{message}</div>}
 
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md mb-6">
                 <div className="mb-4">

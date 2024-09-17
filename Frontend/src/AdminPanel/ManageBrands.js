@@ -1,95 +1,89 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
-import { removeBrand, setBrands, updateBrand } from '../Store/adminslice';
+import { deleteBrandAsync, updateBrandAsync, fetchBrandsAsync } from '../Store/adminslice';
 
 const ManageBrands = () => {
   const dispatch = useDispatch();
   const brands = useSelector((state) => state.admin.brands);
-
+  
   const [editingBrandId, setEditingBrandId] = useState(null);
   const [editedBrandName, setEditedBrandName] = useState('');
   const [editedLogo, setEditedLogo] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(''); // For validation errors
+  const [errorMessage, setErrorMessage] = useState(''); // For validation or API errors
+  const [message, setMessage] = useState(''); // For success messages
+  const loading = useSelector((state) => state.admin.loading);
+  const error = useSelector((state) => state.admin.error);
 
   useEffect(() => {
-    const fetchBrands = async () => {
-      try {
-        const response = await axios.get('http://localhost:4000/AdminPanel/AllBrands', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        dispatch(setBrands(response.data));
-      } catch (error) {
-        console.error('Error fetching brands:', error);
-      }
-    };
-    fetchBrands();
+    dispatch(fetchBrandsAsync()); // Fetch brands on component mount
   }, [dispatch]);
 
   const handleDelete = async (brandId) => {
     try {
-      await axios.delete(`http://localhost:4000/AdminPanel/DeleteBrand/${brandId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      dispatch(removeBrand(brandId));
+      await dispatch(deleteBrandAsync(brandId)); // Dispatch deleteBrand action
+      setMessage('Brand successfully deleted.');
+      setErrorMessage('');
     } catch (error) {
       console.error('Error deleting brand:', error);
+      setErrorMessage('Failed to delete the brand.');
+      setMessage('');
     }
   };
 
   const handleEditClick = (brand) => {
     setEditingBrandId(brand.id);
     setEditedBrandName(brand.name);
+    setEditedLogo(null); // Reset the logo to avoid confusion if it was uploaded earlier
+    setErrorMessage('');
+    setMessage('');
   };
 
   const handleLogoChange = (e) => {
-    setEditedLogo(e.target.files[0]);
+    setEditedLogo(e.target.files[0]); // Set the selected image file
   };
 
   const handleUpdate = async (brandId) => {
-    // Validate brand name length
+    // Validate brand name
     if (editedBrandName.length < 3 || editedBrandName.length > 50) {
       setErrorMessage('Brand name must be between 3 and 50 characters.');
+      setMessage('');
       return;
     }
-    
-    setErrorMessage(''); // Clear any previous error messages
 
+    // Prepare FormData for the API request
     const formData = new FormData();
     formData.append('name', editedBrandName);
-    
     if (editedLogo) {
       formData.append('logo', editedLogo);
     }
 
     try {
-      const response = await axios.put(
-        `http://localhost:4000/AdminPanel/UpdateBrand/${brandId}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-
-      dispatch(updateBrand(response.data.brand));
+      // Dispatch updateBrand action
+      await dispatch(updateBrandAsync({ id: brandId, data: formData }));
       setEditingBrandId(null);
       setEditedLogo(null);
+      setErrorMessage('');
+      setMessage('Brand successfully updated.');
+      
+      // Re-fetch brands after update
+      dispatch(fetchBrandsAsync());
     } catch (error) {
       console.error('Error updating brand:', error);
+      setErrorMessage('Failed to update the brand.');
+      setMessage('');
     }
   };
 
   return (
     <div className="p-8 max-w-5xl mx-auto bg-gray-100 shadow-lg rounded-lg">
       <h2 className="text-2xl font-bold mb-4">Manage Brands</h2>
-      {errorMessage && <p className="text-red-500">{errorMessage}</p>} {/* Display validation error */}
+
+      {/* Display success message */}
+      {message && <p className="text-green-500 mb-4">{message}</p>}
+      
+      {/* Display validation or API error message */}
+      {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>} 
+
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-gray-200 text-left">
@@ -108,7 +102,7 @@ const ManageBrands = () => {
                       type="text"
                       value={editedBrandName}
                       onChange={(e) => setEditedBrandName(e.target.value)}
-                      className="border px-2 py-1"
+                      className="border px-2 py-1 w-full"
                     />
                   ) : (
                     brand.name
