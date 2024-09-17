@@ -14,7 +14,7 @@ const AdminNavbar = () => {
 
   // Use useSelector to get the admin data from the Redux state
   const admin = useSelector((state) => state.admin.admin);
-  
+
   // Function to toggle the mobile menu's open/close state
   const toggleMenu = () => {
     setIsOpen(!isOpen); // Toggle the state
@@ -99,11 +99,15 @@ const AdminNavbar = () => {
           </li>
 
           <li>
-            <Link to="/adminpanel/AddProduct"  className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Products</Link>
+            <Link to="/adminpanel/AddProduct" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Products</Link>
           </li>
           <li>
-            <Link to="/adminpanel/orders" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Orders</Link>
+            <Link to="/adminpanel/AdminProductsShoesize" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Product Shoesize</Link>
           </li>
+          <li>
+            <Link to="" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Orders</Link>
+          </li>
+
           <li>
             <Link to="/adminpanel/users" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Users</Link>
           </li>
@@ -127,7 +131,7 @@ const AdminNavbar = () => {
           <li>
             <Link to="/adminpanel/dashboard" className="block px-4 py-2 hover:bg-gray-700">Dashboard</Link>
           </li>
-          
+
           {/* Mobile Categories Dropdown */}
           <li>
             <button onClick={toggleMobileCategories} className="w-full text-left px-4 py-2 hover:bg-gray-700 focus:outline-none">
@@ -166,8 +170,12 @@ const AdminNavbar = () => {
             <Link to="/adminpanel/AddProduct" className="block px-4 py-2 hover:bg-gray-700">Products</Link>
           </li>
           <li>
+            <Link to="/adminpanel/AdminProductsShoesize" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Products Shoesize</Link>
+          </li>
+          <li>
             <Link to="/adminpanel/orders" className="block px-4 py-2 hover:bg-gray-700">Orders</Link>
           </li>
+
           <li>
             <Link to="/adminpanel/users" className="block px-4 py-2 hover:bg-gray-700">Users</Link>
           </li>
