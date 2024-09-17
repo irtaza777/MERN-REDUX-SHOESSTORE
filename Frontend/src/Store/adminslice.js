@@ -154,6 +154,7 @@ export const addProductAsync = createAsyncThunk(
           Authorization: `Bearer ${localStorage.getItem('token')}`, // Send token for authentication
         },
       });
+      console.log(response)
       return response.data; // Assuming response data contains the added product
     } catch (error) {
       return rejectWithValue(error.response.data.message || 'An error occurred while adding the product');
@@ -163,12 +164,36 @@ export const addProductAsync = createAsyncThunk(
 // Thunk to add shoe sizes
 export const addShoeSizesAsync = createAsyncThunk(
   'admin/addShoeSizes',
-  async (shoeSizes) => {
-    const response = await axios.post('http://localhost:4000/AdminPanel/Product/shoeSizes', shoeSizes); // Adjust the endpoint as necessary
-    return response.data;
+  async (Shoesize, { rejectWithValue }) => {
+    try {
+      console.log(Shoesize)
+
+      const response = await axios.post('http://localhost:4000/AdminPanel/Product/AddShoesizes',{Shoesize}, {
+        headers: {
+          'Content-Type': 'application/json', // Change this if not using multipart
+          Authorization: `Bearer ${localStorage.getItem('token')}`, // Send token for authentication
+        },
+      });
+      console.log(response.data)
+      return response.data; // Assuming response data contains the added product
+    } catch (error) {
+      console.error('Error details:', error); // Log the error details
+      return rejectWithValue(error.response?.data?.message || 'An error occurred while adding the product');
+   }
   }
 );
-
+// Define the fetchProductsAsync thunk
+export const fetchProductsAsync = createAsyncThunk(
+  'admin/fetchProducts',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get('http://localhost:4000/AdminPanel/Products'); // Adjust the URL as needed
+      return response.data; // Assuming your API returns a list of products
+    } catch (error) {
+      return rejectWithValue(error.response.data); // Handle errors gracefully
+    }
+  }
+);
 const adminSlice = createSlice({
   name: 'admin',
   initialState: {
@@ -176,6 +201,7 @@ const adminSlice = createSlice({
     categories: [],
     brands: [],
     products: [],
+    Shoesizes:[],
     loading: false,
     error: null,
   },
@@ -326,18 +352,32 @@ const adminSlice = createSlice({
       //Add addShoeSizesAsync thunk 
       .addCase(addShoeSizesAsync.pending, (state) => {
         state.loading = true;
+        state.error = null;
+
       })
       .addCase(addShoeSizesAsync.fulfilled, (state, action) => {
         state.loading = false;
-        // Optionally handle successful shoe size addition
+        state.Shoesizes.push(action.payload); // Assuming response contains the added product
       })
       .addCase(addShoeSizesAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(fetchProductsAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductsAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.products = action.payload; // Assuming response contains the list of products
+      })
+      .addCase(fetchProductsAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload; // Store the error message
       });
   },
 });
 
 // Export actions and reducer
-export const { setAdmin, clearAdmin, setBrands, addBrand, removeBrand, updateBrand, addProduct } = adminSlice.actions;
+export const {setAdmin, clearAdmin, setBrands, addBrand, removeBrand, updateBrand, addProduct } = adminSlice.actions;
 export default adminSlice.reducer;

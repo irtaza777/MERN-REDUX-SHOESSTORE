@@ -10,6 +10,7 @@ import ManageCategories from './AdminPanel/ManageCategories';
 import AddBrand from './AdminPanel/AddBrand';
 import ManageBrands from './AdminPanel/ManageBrands';
 import AddProduct from './AdminPanel/AddProduct';
+import AdminProductsShoesize from './AdminPanel/AdminProductsShoesize';
 const App = () => {
   return (
     <BrowserRouter>
@@ -24,6 +25,7 @@ const App = () => {
           <Route path="/adminpanel/AddBrands" element={<AddBrand />} /> {/* Add route for adding category */}
           <Route path="/adminpanel/ManageBrands" element={<ManageBrands />} /> {/* Add route for adding category */}
           <Route path="/adminpanel/AddProduct" element={<AddProduct />} /> {/* Add route for adding category */}
+          <Route path="/adminpanel/AdminProductsShoesize" element={<AdminProductsShoesize />} /> {/* Add route for adding category */}
 
           </Route>
           {/* Add more admin routes here */}

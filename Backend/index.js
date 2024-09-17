@@ -319,10 +319,8 @@ app.put('/AdminPanel/UpdateBrand/:id', verifyToken, upload.single('logo'), async
 
 // Add a new product
 app.post('/AdminPanel/AddProduct', upload.single('image'), async (req, res) => {
-  console.log("Adding Product");
   
   const { name, description, price, stock, categoryId, brandId } = req.body;
-  console.log("Request Body:", req.body); // Log the incoming data
 
   // Validation
   if (!name || name.length < 5) {
@@ -361,7 +359,6 @@ app.post('/AdminPanel/AddProduct', upload.single('image'), async (req, res) => {
       where: { id: parseInt(brandId, 10) },
     });
 
-    console.log("Brand ID:", brandId); // Log the brandId for debugging
 
     if (!brandExists) {
       console.error(`Brand with ID ${brandId} does not exist.`);
@@ -390,16 +387,35 @@ app.post('/AdminPanel/AddProduct', upload.single('image'), async (req, res) => {
 //Shoesize
 
 // In your Express app
-app.post('/AdminPanel/Product/shoeSizes', verifyToken, async (req, res) => {
-  const { size } = req.body;
+app.post('/AdminPanel/Product/AddShoesizes', verifyToken, async (req, res) => {
 
-  if (!size) {
-    return res.status(400).json({ message: 'Shoe size is required' });
+  // Destructure the properties
+  let { productId, size, stock } = req.body.Shoesize; // Adjusted to access the nested object
+ 
+
+  // Convert incoming values to the appropriate types
+  productId = parseInt(productId, 10); // Convert productId to an integer
+  size = parseFloat(size); // Convert size to a float
+  stock = parseInt(stock, 10); // Convert stock to an integer
+
+  // Validate inputs
+  if (isNaN(productId)) {
+    return res.status(400).json({ message: 'Product ID must be a valid integer' });
+  }
+  if (isNaN(size)) {
+    return res.status(400).json({ message: 'Shoe size must be a valid number' });
+  }
+  if (isNaN(stock)) {
+    return res.status(400).json({ message: 'Shoe stock must be a valid integer' });
   }
 
   try {
     const newShoeSize = await prisma.shoeSize.create({
-      data: { size: size },
+      data: { 
+        productId: productId, 
+        size: size, // size should already be a float
+        stock: stock 
+      },
     });
     res.status(201).json(newShoeSize);
   } catch (error) {
@@ -410,11 +426,9 @@ app.post('/AdminPanel/Product/shoeSizes', verifyToken, async (req, res) => {
 
 
 // Get all products
-app.get('/products', async (req, res) => {
+app.get('/AdminPanel/Products', async (req, res) => {
   try {
-    const products = await prisma.product.findMany({
-      include: { category: true, brand: true, sizes: true, colors: true }, // Including related data
-    });
+    const products = await prisma.product.findMany();
     res.status(200).json(products);
   } catch (error) {
     console.error(error);
