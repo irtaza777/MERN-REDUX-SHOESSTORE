@@ -99,7 +99,7 @@ const AdminNavbar = () => {
           </li>
 
           <li>
-            <Link to="/adminpanel/products"  className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Products</Link>
+            <Link to="/adminpanel/AddProduct"  className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Products</Link>
           </li>
           <li>
             <Link to="/adminpanel/orders" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Orders</Link>
@@ -163,7 +163,7 @@ const AdminNavbar = () => {
           </li>
 
           <li>
-            <Link to="/adminpanel/products" className="block px-4 py-2 hover:bg-gray-700">Products</Link>
+            <Link to="/adminpanel/AddProduct" className="block px-4 py-2 hover:bg-gray-700">Products</Link>
           </li>
           <li>
             <Link to="/adminpanel/orders" className="block px-4 py-2 hover:bg-gray-700">Orders</Link>
