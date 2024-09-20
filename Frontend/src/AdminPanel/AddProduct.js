@@ -102,8 +102,8 @@ const AddProduct = () => {
     };
 
     return (
-        <div className="container mx-auto mt-10">
-            <h2 className="text-2xl font-semibold mb-5">Add New Product</h2>
+        <div className="p-8 max-w-full mx-auto bg-gray-100 shadow-lg rounded-lg">
+        <h2 className="text-2xl font-semibold mb-5">Add New Product</h2>
             {message && <p className={message.includes('success') ? 'text-green-500' : 'text-red-500'}>{message}</p>}
             <form onSubmit={handleSubmit}>
                 {/* Product Name */}

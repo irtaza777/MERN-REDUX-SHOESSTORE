@@ -128,7 +128,7 @@ export const updateBrandAsync = createAsyncThunk(
   'admin/updateBrandAsync',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`http://localhost:4000/AdminPanel/UpdateBrand/${id}`,  data , {
+      const response = await axios.put(`http://localhost:4000/AdminPanel/UpdateBrand/${id}`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -161,27 +161,84 @@ export const addProductAsync = createAsyncThunk(
     }
   }
 );
-// Thunk to add shoe sizes
+// Add shoe sizes async action
 export const addShoeSizesAsync = createAsyncThunk(
   'admin/addShoeSizes',
-  async (Shoesize, { rejectWithValue }) => {
+  async ({ productId, sizes, stocks }, { rejectWithValue }) => {
+    console.log(sizes)
     try {
-      console.log(Shoesize)
-
-      const response = await axios.post('http://localhost:4000/AdminPanel/Product/AddShoesizes',{Shoesize}, {
+      const response = await axios.post('http://localhost:4000/AdminPanel/Product/AddShoesizes', {
+        productId, // Send productId as integer
+        sizes,     // Send sizes as array of floats/integers
+        stocks,    // Send stocks as array of integers
+      }, {
         headers: {
-          'Content-Type': 'application/json', // Change this if not using multipart
+          'Content-Type': 'application/json', // Ensure it's JSON
           Authorization: `Bearer ${localStorage.getItem('token')}`, // Send token for authentication
         },
       });
-      console.log(response.data)
-      return response.data; // Assuming response data contains the added product
+
+      return response.data;
     } catch (error) {
-      console.error('Error details:', error); // Log the error details
-      return rejectWithValue(error.response?.data?.message || 'An error occurred while adding the product');
-   }
+      console.error('Error adding shoe sizes:', error.response);
+      return rejectWithValue(error.response.data);
+    }
   }
 );
+//fetch shoesize thunk
+export const fetchShoeSizesAsync = createAsyncThunk('admin/fetchShoeSizes', {
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  },
+} ,async () => {
+  const response = await axios.get('/api/shoesizes'); // Replace with actual API endpoint
+  return response.data;
+});
+
+//update shoesize thunk
+export const updateShoeSizesAsync = createAsyncThunk(
+  'admin/updateShoeSizes',
+  async ({ productId, sizes, stocks }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`http://localhost:4000/AdminPanel/Product/UpdateShoeSizes`, {
+        productId,
+        sizes,
+        stocks,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error updating shoe sizes:', error.response);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+//Delete shoesize thunk
+
+export const deleteShoeSizesAsync = createAsyncThunk(
+  'admin/deleteShoeSizes',
+  async ({ productId, sizeId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(`http://localhost:4000/AdminPanel/Product/DeleteShoeSizes/${productId}/${sizeId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      return response.data; // Assuming success response contains some data
+    } catch (error) {
+      console.error('Error deleting shoe size:', error.response);
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 // Define the fetchProductsAsync thunk
 export const fetchProductsAsync = createAsyncThunk(
   'admin/fetchProducts',
@@ -201,7 +258,7 @@ const adminSlice = createSlice({
     categories: [],
     brands: [],
     products: [],
-    Shoesizes:[],
+    Shoesizes: [],
     loading: false,
     error: null,
   },
@@ -374,10 +431,56 @@ const adminSlice = createSlice({
       .addCase(fetchProductsAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload; // Store the error message
+      })
+      // Fetch Shoe Sizes
+      .addCase(fetchShoeSizesAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchShoeSizesAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.Shoesizes = action.payload; // Set fetched sizes
+      })
+      .addCase(fetchShoeSizesAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Update Shoe Sizes
+      .addCase(updateShoeSizesAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateShoeSizesAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.shoeSizes.findIndex(size => size.id === action.payload.id);
+        if (index !== -1) {
+          state.Shoesizes[index] = action.payload; // Update the size
+        }
+      })
+      .addCase(updateShoeSizesAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Delete Shoe Sizes
+      .addCase(deleteShoeSizesAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteShoeSizesAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.Shoesizes = state.shoeSizes.filter(size => size.id !== action.meta.arg.sizeId); // Remove size
+      })
+      .addCase(deleteShoeSizesAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
+
+
   },
 });
 
 // Export actions and reducer
-export const {setAdmin, clearAdmin, setBrands, addBrand, removeBrand, updateBrand, addProduct } = adminSlice.actions;
+export const { setAdmin, clearAdmin, setBrands, addBrand, removeBrand, updateBrand, addProduct } = adminSlice.actions;
 export default adminSlice.reducer;

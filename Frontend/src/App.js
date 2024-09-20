@@ -11,6 +11,8 @@ import AddBrand from './AdminPanel/AddBrand';
 import ManageBrands from './AdminPanel/ManageBrands';
 import AddProduct from './AdminPanel/AddProduct';
 import AdminProductsShoesize from './AdminPanel/AdminProductsShoesize';
+import AdminProductColor from './AdminPanel/AdminProductColor';
+import ManageProducts from './AdminPanel/ManageProducts';
 const App = () => {
   return (
     <BrowserRouter>
@@ -26,6 +28,8 @@ const App = () => {
           <Route path="/adminpanel/ManageBrands" element={<ManageBrands />} /> {/* Add route for adding category */}
           <Route path="/adminpanel/AddProduct" element={<AddProduct />} /> {/* Add route for adding category */}
           <Route path="/adminpanel/AdminProductsShoesize" element={<AdminProductsShoesize />} /> {/* Add route for adding category */}
+          <Route path="/adminpanel/AdminProducts/ProductColor" element={<AdminProductColor />} /> {/* Add route for adding category */}
+          <Route path="/adminpanel/AdminProducts/AllProductsDetails" element={<ManageProducts />} /> {/* Add route for adding category */}
 
           </Route>
           {/* Add more admin routes here */}

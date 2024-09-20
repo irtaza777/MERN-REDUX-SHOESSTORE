@@ -74,7 +74,7 @@ app.post('/admin/login', async (req, res) => {
     const token = jwt.sign({ email: admin.email }, jwtkey, { expiresIn: '1h' });
     console.log('Token created:', token); // Check if the token is created
 
-    return res.json({ token,admin });
+    return res.json({ token, admin });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -83,7 +83,7 @@ app.post('/admin/login', async (req, res) => {
 
 
 // Add a new category
-app.post('/AdminPanel/AddCategory',verifyToken, async (req, res) => {
+app.post('/AdminPanel/AddCategory', verifyToken, async (req, res) => {
   const { name } = req.body;
 
   // Validate that the category name is present
@@ -110,7 +110,7 @@ app.post('/AdminPanel/AddCategory',verifyToken, async (req, res) => {
 });
 
 // Backend route for fetching all categories
-app.get('/AdminPanel/AllCategories',verifyToken, async (req, res) => {
+app.get('/AdminPanel/AllCategories', verifyToken, async (req, res) => {
   try {
     const categories = await prisma.category.findMany();
     res.status(200).json(categories);
@@ -120,7 +120,7 @@ app.get('/AdminPanel/AllCategories',verifyToken, async (req, res) => {
 });
 
 // Update an existing category by ID
-app.put('/AdminPanel/UpdateCategory/:id',verifyToken, async (req, res) => {
+app.put('/AdminPanel/UpdateCategory/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
 
@@ -147,7 +147,7 @@ app.put('/AdminPanel/UpdateCategory/:id',verifyToken, async (req, res) => {
 });
 
 // Delete a category by ID
-app.delete('/AdminPanel/DeleteCategory/:id',verifyToken, async (req, res) => {
+app.delete('/AdminPanel/DeleteCategory/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -166,7 +166,7 @@ app.delete('/AdminPanel/DeleteCategory/:id',verifyToken, async (req, res) => {
 });
 
 // POST endpoint to add a new brand
-app.post('/AdminPanel/Brands', upload.single('logo'),verifyToken, async (req, res) => {
+app.post('/AdminPanel/Brands', upload.single('logo'), verifyToken, async (req, res) => {
   const { name } = req.body;
   let logoUrl;
 
@@ -216,7 +216,7 @@ app.post('/AdminPanel/Brands', upload.single('logo'),verifyToken, async (req, re
 
 
 //  Get All Brands
-app.get('/AdminPanel/AllBrands',verifyToken, async (req, res) => {
+app.get('/AdminPanel/AllBrands', verifyToken, async (req, res) => {
   try {
     const brands = await prisma.brand.findMany();
     res.status(200).json(brands);
@@ -226,7 +226,7 @@ app.get('/AdminPanel/AllBrands',verifyToken, async (req, res) => {
   }
 });
 //  Delete Brand by ID
-app.delete('/AdminPanel/DeleteBrand/:id',verifyToken, async (req, res) => {
+app.delete('/AdminPanel/DeleteBrand/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -319,18 +319,18 @@ app.put('/AdminPanel/UpdateBrand/:id', verifyToken, upload.single('logo'), async
 
 // Add a new product
 app.post('/AdminPanel/AddProduct', upload.single('image'), async (req, res) => {
-  
+
   const { name, description, price, stock, categoryId, brandId } = req.body;
 
   // Validation
   if (!name || name.length < 5) {
     return res.status(400).send('Product name is required and must be at least 5 characters long.');
   }
-  
+
   if (!description || description.length < 10) {
     return res.status(400).send('Description is required and must be at least 10 characters long.');
   }
-  
+
   if (!price || isNaN(price) || parseFloat(price) <= 0) {
     return res.status(400).send('Price must be a positive number.');
   }
@@ -388,43 +388,88 @@ app.post('/AdminPanel/AddProduct', upload.single('image'), async (req, res) => {
 
 // In your Express app
 app.post('/AdminPanel/Product/AddShoesizes', verifyToken, async (req, res) => {
+  // Log the entire request body
+  const { productId, sizes, stocks } = req.body
 
-  // Destructure the properties
-  let { productId, size, stock } = req.body.Shoesize; // Adjusted to access the nested object
- 
-
-  // Convert incoming values to the appropriate types
-  productId = parseInt(productId, 10); // Convert productId to an integer
-  size = parseFloat(size); // Convert size to a float
-  stock = parseInt(stock, 10); // Convert stock to an integer
-
-  // Validate inputs
-  if (isNaN(productId)) {
-    return res.status(400).json({ message: 'Product ID must be a valid integer' });
-  }
-  if (isNaN(size)) {
-    return res.status(400).json({ message: 'Shoe size must be a valid number' });
-  }
-  if (isNaN(stock)) {
-    return res.status(400).json({ message: 'Shoe stock must be a valid integer' });
+  // Check for missing fields or mismatches in array length
+  if (!productId || !sizes || !stocks || !Array.isArray(sizes) || !Array.isArray(stocks) || sizes.length !== stocks.length) {
+    return res.status(400).json({
+      message: 'Product ID, sizes, and stock are required, and the length must match.',
+    });
   }
 
   try {
-    const newShoeSize = await prisma.shoeSize.create({
-      data: { 
-        productId: productId, 
-        size: size, // size should already be a float
-        stock: stock 
-      },
-    });
-    res.status(201).json(newShoeSize);
+    // Log the parsed values to check their types
+    console.log('Product ID:', productId);
+    console.log('Sizes:', sizes);
+    console.log('Stocks:', stocks);
+
+    const newSizes = await Promise.all(
+      sizes.map((size, index) => {
+        const stock = stocks[index];
+        return prisma.shoeSize.create({
+          data: {
+            productId: parseInt(productId, 10), // Convert productId to integer
+            size: parseFloat(size), // Convert size to float
+            stock: parseInt(stock, 10), // Convert stock to integer
+          },
+        });
+      })
+    );
+
+    res.status(201).json({ message: 'Shoe sizes added successfully!', data: newSizes });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Failed to create shoe size' });
+    res.status(500).json({ message: 'Failed to create shoe sizes' });
   }
 });
 
+// Fetch all shoe sizes across all products
+app.get('/AdminPanel/Product/AllShoesizes', async (req, res) => {
+  try {
+    const shoeSizes = await prisma.shoeSize.findMany({
+      include: {
+        product: true, // Include the related product information
+      },
+    });
+    res.json(shoeSizes);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch shoe sizes.' });
+  }
+});
 
+// Update shoe size by ID
+app.put('/AdminPanel/Product/Shoesize/:id', async (req, res) => {
+  const { id } = req.params;
+  const { size, stock } = req.body;
+
+  try {
+    const updatedShoeSize = await prisma.shoeSize.update({
+      where: { id: parseInt(id) },
+      data: {
+        size: parseFloat(size), // Convert size to float
+        stock: parseInt(stock, 10), // Convert stock to integer
+      },
+    });
+
+    res.json(updatedShoeSize);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update shoe size.' });
+  }
+});
+
+// Delete shoe size by ID
+app.delete('/AdminPanel/Product/Shoesize/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await prisma.shoeSize.delete({
+      where: { id: parseInt(id) },
+    });
+    res.json({ message: 'Shoe size deleted successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete shoe size.' });
+  }
+});
 // Get all products
 app.get('/AdminPanel/Products', async (req, res) => {
   try {
@@ -435,34 +480,67 @@ app.get('/AdminPanel/Products', async (req, res) => {
     res.status(500).send('An error occurred while fetching the products');
   }
 });
-
-// Update a product by ID
-app.put('/products/:id', async (req, res) => {
-  const { id } = req.params;
-  const { name, description, price, imageUrl, stock, categoryId, brandId, sizes, colors } = req.body;
+// Delete product API
+// Delete product API
+app.delete('/AdminPanel/DeleteProduct/:id', async (req, res) => {
+  const productId = parseInt(req.params.id);
 
   try {
-    const updatedProduct = await prisma.product.update({
-      where: { id: parseInt(id) },
-      data: {
-        name,
-        description,
-        price,
-        imageUrl,
-        stock,
-        category: { connect: { id: categoryId } },
-        brand: { connect: { id: brandId } },
-        sizes: { set: sizes.map(size => ({ id: size })) }, // Reset and set new sizes
-        colors: { set: colors.map(color => ({ id: color })) } // Reset and set new colors
-      },
+    // First, delete related sizes
+    await prisma.ShoeSize.deleteMany({
+      where: { productId: productId },
     });
-    res.status(200).json(updatedProduct);
+
+    // Then, delete related colors
+    await prisma.ProductColor.deleteMany({
+      where: { productId: productId },
+    });
+
+    // Finally, delete the product
+    await prisma.product.delete({
+      where: { id: productId },
+    });
+
+    res.status(200).json({ message: 'Product and related data deleted successfully' });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred while updating the product');
+    console.error('Error deleting product:', error);
+    res.status(500).json({ message: 'Error deleting product', error });
   }
 });
 
+// Update a product by ID
+
+// Update product route
+app.put('/AdminPanel/UpdateProduct/:id', upload.single('imageUrl'), async (req, res) => {
+  const { id } = req.params;
+  const { name, price, description, stock } = req.body;
+  const result = await cloudinary.uploader.upload(req.file.path);
+
+  imageUrl = result.secure_url;
+
+  try {
+    const updateData = {
+      name,
+      price: parseFloat(price),
+      description,
+      stock: parseInt(stock),
+    };
+
+    if (imageUrl) {
+      updateData.imageUrl = imageUrl;  // Only update the imageUrl if a new file is uploaded
+    }
+
+    const updatedProduct = await prisma.product.update({
+      where: { id: parseInt(id) },
+      data: updateData,
+    });
+
+    res.json(updatedProduct);
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({ error: 'Failed to update product' });
+  }
+});
 // Delete a product by ID
 app.delete('/products/:id', async (req, res) => {
   const { id } = req.params;
@@ -475,6 +553,62 @@ app.delete('/products/:id', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send('An error occurred while deleting the product');
+  }
+});
+app.post('/AdminPanel/Product/ProductColor', async (req, res) => {
+  // Parse productId and colorId as integers
+  const productId = parseInt(req.body.productId, 10);
+  const colorId = parseInt(req.body.colorId, 10);
+
+  // Check if the parsed values are valid integers
+  if (isNaN(productId) || isNaN(colorId)) {
+    return res.status(400).json({ message: 'Invalid productId or colorId.' });
+  }
+
+  try {
+    const newProductColor = await prisma.productColor.create({
+      data: {
+        productId,
+        colorId,
+      },
+    });
+    res.status(201).json({ message: 'Color added to product successfully!', data: newProductColor });
+  } catch (error) {
+    console.error('Error adding color to product:', error);
+    res.status(500).json({ message: 'Failed to add color to product.' });
+  }
+});
+// GET /api/colors
+app.get('/AdminPanel/Product/AllColor', async (req, res) => {
+  try {
+    const colors = await prisma.Color.findMany();
+    res.status(200).json(colors);
+  } catch (error) {
+    console.error('Error fetching colors:', error);
+    res.status(500).json({ message: 'Failed to fetch colors.' });
+  }
+});
+// Products all details
+app.get('/AdminPanel/AllProducts', async (req, res) => {
+  try {
+    // Fetch products, along with related sizes and colors
+    const products = await prisma.product.findMany({
+      include: {
+        sizes: true, // Include shoe sizes
+        colors: {
+          include: {
+            color: true, // Include color details
+          },
+        },
+        brand: true, // Optionally, include brand details
+        category: true, // Optionally, include category details
+      },
+    });
+
+    res.json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Failed to fetch products" });
   }
 });
 
@@ -640,7 +774,7 @@ app.post('/login', async (req, res) => {
   }
 });
 //Token verification
-function verifyToken (req, res, next){
+function verifyToken(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1]; // Assuming the token is sent as 'Bearer token'
 
   if (!token) {
