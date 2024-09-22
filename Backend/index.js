@@ -588,6 +588,56 @@ app.get('/AdminPanel/Product/AllColor', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch colors.' });
   }
 });
+//fetch data from productcolor
+app.get('/AdminPanel/Product/AllProductsColor', async (req, res) => {
+  try {
+    const colors = await prisma.ProductColor.findMany();
+    res.status(200).json(colors);
+  } catch (error) {
+    console.error('Error fetching colors:', error);
+    res.status(500).json({ message: 'Failed to fetch colors.' });
+  }
+});
+// Delete a product color by ID
+app.delete('/AdminPanel/Product/ProductColor/:id', async (req, res) => {
+  const { id } = req.params; // Get the product color ID from the URL params
+  try {
+    // Delete the product color from the database
+    const deletedProductColor = await prisma.productColor.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    res.status(200).json({ message: 'Product color deleted successfully.', deletedProductColor });
+  } catch (error) {
+    console.error('Error deleting product color:', error);
+    res.status(500).json({ message: 'Failed to delete product color.' });
+  }
+});
+// Update a product color by ID
+app.put('/AdminPanel/Product/ProductColor/:id', async (req, res) => {
+  const { id } = req.params; // Get the product color ID from the URL params
+  const { productId, colorId } = req.body; // Get the productId and colorId from the request body
+
+  try {
+    // Update the product color in the database
+    const updatedProductColor = await prisma.productColor.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        productId: Number(productId),
+        colorId: Number(colorId),
+      },
+    });
+
+    res.status(200).json({ message: 'Product color updated successfully.', updatedProductColor });
+  } catch (error) {
+    console.error('Error updating product color:', error);
+    res.status(500).json({ message: 'Failed to update product color.' });
+  }
+});
 // Products all details
 app.get('/AdminPanel/AllProducts', async (req, res) => {
   try {

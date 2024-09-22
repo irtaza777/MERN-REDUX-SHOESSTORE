@@ -13,6 +13,7 @@ import AddProduct from './AdminPanel/AddProduct';
 import AdminProductsShoesize from './AdminPanel/AdminProductsShoesize';
 import AdminProductColor from './AdminPanel/AdminProductColor';
 import ManageProducts from './AdminPanel/ManageProducts';
+import LandingPage from './Components/LandingPage/LandingPage';
 const App = () => {
   return (
     <BrowserRouter>
@@ -32,8 +33,12 @@ const App = () => {
           <Route path="/adminpanel/AdminProducts/AllProductsDetails" element={<ManageProducts />} /> {/* Add route for adding category */}
 
           </Route>
+
+
           {/* Add more admin routes here */}
         </Route>
+        <Route path="/" element={<LandingPage />} /> {/* Add route for adding category */}
+
       </Routes>
     </BrowserRouter>
   );
