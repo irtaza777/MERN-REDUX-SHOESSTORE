@@ -244,7 +244,11 @@ export const fetchProductsAsync = createAsyncThunk(
   'admin/fetchProducts',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('http://localhost:4000/AdminPanel/Products'); // Adjust the URL as needed
+      const response = await axios.get('http://localhost:4000/AdminPanel/Products',{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      }); // Adjust the URL as needed
       return response.data; // Assuming your API returns a list of products
     } catch (error) {
       return rejectWithValue(error.response.data); // Handle errors gracefully

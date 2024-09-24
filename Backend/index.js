@@ -318,7 +318,7 @@ app.put('/AdminPanel/UpdateBrand/:id', verifyToken, upload.single('logo'), async
 
 
 // Add a new product
-app.post('/AdminPanel/AddProduct', upload.single('image'), async (req, res) => {
+app.post('/AdminPanel/AddProduct', upload.single('image'), verifyToken, async (req, res) => {
 
   const { name, description, price, stock, categoryId, brandId } = req.body;
 
@@ -424,7 +424,7 @@ app.post('/AdminPanel/Product/AddShoesizes', verifyToken, async (req, res) => {
 });
 
 // Fetch all shoe sizes across all products
-app.get('/AdminPanel/Product/AllShoesizes', async (req, res) => {
+app.get('/AdminPanel/Product/AllShoesizes', verifyToken, async (req, res) => {
   try {
     const shoeSizes = await prisma.shoeSize.findMany({
       include: {
@@ -458,7 +458,7 @@ app.put('/AdminPanel/Product/Shoesize/:id', async (req, res) => {
 });
 
 // Delete shoe size by ID
-app.delete('/AdminPanel/Product/Shoesize/:id', async (req, res) => {
+app.delete('/AdminPanel/Product/Shoesize/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -471,7 +471,7 @@ app.delete('/AdminPanel/Product/Shoesize/:id', async (req, res) => {
   }
 });
 // Get all products
-app.get('/AdminPanel/Products', async (req, res) => {
+app.get('/AdminPanel/Products', verifyToken, async (req, res) => {
   try {
     const products = await prisma.product.findMany();
     res.status(200).json(products);
@@ -482,7 +482,7 @@ app.get('/AdminPanel/Products', async (req, res) => {
 });
 // Delete product API
 // Delete product API
-app.delete('/AdminPanel/DeleteProduct/:id', async (req, res) => {
+app.delete('/AdminPanel/DeleteProduct/:id', verifyToken, async (req, res) => {
   const productId = parseInt(req.params.id);
 
   try {
@@ -511,7 +511,7 @@ app.delete('/AdminPanel/DeleteProduct/:id', async (req, res) => {
 // Update a product by ID
 
 // Update product route
-app.put('/AdminPanel/UpdateProduct/:id', upload.single('imageUrl'), async (req, res) => {
+app.put('/AdminPanel/UpdateProduct/:id', verifyToken, upload.single('imageUrl'), async (req, res) => {
   const { id } = req.params;
   const { name, price, description, stock } = req.body;
   const result = await cloudinary.uploader.upload(req.file.path);
@@ -542,7 +542,7 @@ app.put('/AdminPanel/UpdateProduct/:id', upload.single('imageUrl'), async (req, 
   }
 });
 // Delete a product by ID
-app.delete('/products/:id', async (req, res) => {
+app.delete('/products/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -555,7 +555,7 @@ app.delete('/products/:id', async (req, res) => {
     res.status(500).send('An error occurred while deleting the product');
   }
 });
-app.post('/AdminPanel/Product/ProductColor', async (req, res) => {
+app.post('/AdminPanel/Product/ProductColor', verifyToken, async (req, res) => {
   // Parse productId and colorId as integers
   const productId = parseInt(req.body.productId, 10);
   const colorId = parseInt(req.body.colorId, 10);
@@ -579,7 +579,7 @@ app.post('/AdminPanel/Product/ProductColor', async (req, res) => {
   }
 });
 // GET /api/colors
-app.get('/AdminPanel/Product/AllColor', async (req, res) => {
+app.get('/AdminPanel/Product/AllColor', verifyToken, async (req, res) => {
   try {
     const colors = await prisma.Color.findMany();
     res.status(200).json(colors);
@@ -589,7 +589,7 @@ app.get('/AdminPanel/Product/AllColor', async (req, res) => {
   }
 });
 //fetch data from productcolor
-app.get('/AdminPanel/Product/AllProductsColor', async (req, res) => {
+app.get('/AdminPanel/Product/AllProductsColor', verifyToken, async (req, res) => {
   try {
     const colors = await prisma.ProductColor.findMany();
     res.status(200).json(colors);
@@ -599,7 +599,7 @@ app.get('/AdminPanel/Product/AllProductsColor', async (req, res) => {
   }
 });
 // Delete a product color by ID
-app.delete('/AdminPanel/Product/ProductColor/:id', async (req, res) => {
+app.delete('/AdminPanel/Product/ProductColor/:id', verifyToken, async (req, res) => {
   const { id } = req.params; // Get the product color ID from the URL params
   try {
     // Delete the product color from the database
@@ -616,7 +616,7 @@ app.delete('/AdminPanel/Product/ProductColor/:id', async (req, res) => {
   }
 });
 // Update a product color by ID
-app.put('/AdminPanel/Product/ProductColor/:id', async (req, res) => {
+app.put('/AdminPanel/Product/ProductColor/:id', verifyToken, async (req, res) => {
   const { id } = req.params; // Get the product color ID from the URL params
   const { productId, colorId } = req.body; // Get the productId and colorId from the request body
 
@@ -639,7 +639,7 @@ app.put('/AdminPanel/Product/ProductColor/:id', async (req, res) => {
   }
 });
 // Products all details
-app.get('/AdminPanel/AllProducts', async (req, res) => {
+app.get('/AdminPanel/AllProducts', verifyToken, async (req, res) => {
   try {
     // Fetch products, along with related sizes and colors
     const products = await prisma.product.findMany({
@@ -661,7 +661,46 @@ app.get('/AdminPanel/AllProducts', async (req, res) => {
     res.status(500).json({ error: "Failed to fetch products" });
   }
 });
+//frontend apis
+// landingpage seperate apis
+// Allproducts api
+app.get('/LandingPage/Products', async (req, res) => {
+  try {
+    // Fetch 8 random products
+    const products = await prisma.product.findMany({
+      take: 8, // Limit to 8 products
+      orderBy: {
+        // This will randomize the products
+        id: 'asc'  // If your DB supports random ordering, you could use something like `orderBy: { random: true }`. Otherwise, this is a simple solution.
+      }
+    });
 
+    res.json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Failed to fetch products" });
+  }
+});
+// Allcats api
+
+app.get('/LandingPage/Categories', async (req, res) => {
+  try {
+    const categories = await prisma.category.findMany();
+    res.status(200).json(categories);
+  } catch (error) {
+    res.status(500).send('An error occurred while fetching categories.');
+  }
+});
+//  Get All Brands
+app.get('/LandingPage/Brands', async (req, res) => {
+  try {
+    const brands = await prisma.brand.findMany();
+    res.status(200).json(brands);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch brands' });
+  }
+});
 // Add an item to the cart
 app.post('/cart', async (req, res) => {
   const { userId, productId, sizeId, quantity } = req.body;
