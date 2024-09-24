@@ -45,7 +45,7 @@ const UserAuthentication = () => {
 
     try {
       // Send POST request to the registration endpoint
-      const response = await axios.post('http://localhost:4000/admin/create', registerFormData);
+      const response = await axios.post('http://localhost:4000/user/create', registerFormData);
 
       if (response.status === 201) {
         setRegisterMessage('Registration successful! Please login.'); // Success message
@@ -80,14 +80,14 @@ const UserAuthentication = () => {
     setLoginMessage(''); // Clear any previous messages
 
     try {
-      const response = await axios.post('http://localhost:4000/admin/login', loginFormData);
+      const response = await axios.post('http://localhost:4000/user/login', loginFormData);
 
       if (response.status === 200) {
-        const { token, admin } = response.data;
+        const { Sectoken, user } = response.data;
         setLoginMessage('Login successful!'); // Success message
-        localStorage.setItem('admin', JSON.stringify(admin));
-        localStorage.setItem('token', token);
-        navigate('/adminpanel/dashboard');
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('token', Sectoken);
+        //navigate('/adminpanel/dashboard');
       }
     } catch (error) {
       if (error.response && error.response.status === 401) {
@@ -170,6 +170,7 @@ const UserAuthentication = () => {
               {loginLoading ? 'Logging in...' : 'Login'}
             </button>
           </form>
+          <p className='text-red-950 text-center'>Register,if you are not a member.</p>
         </div>
       </div>
     </div>

@@ -20,6 +20,19 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
+model UserReg {
+  id        Int      @id @default(autoincrement()) // Unique identifier with auto-increment
+  name      String   @db.VarChar(100)              // Name field with validation for max length
+  email     String   @unique                       // Email must be unique
+  password  String   @db.VarChar(255)              // Password field (hashed)
+  province  String   @db.VarChar(100)              // Province of the user
+  city      String   @db.VarChar(100)              // City of the user
+  mobile    String   @db.VarChar(20)               // Mobile number
+  address   String   @db.VarChar(255)              // Address of the user
+  createdAt DateTime @default(now())               // Automatically set creation time
+  updatedAt DateTime @updatedAt                    // Automatically set update time
+}
+
 
 model Category {
   id        Int       @id @default(autoincrement())

@@ -816,33 +816,46 @@ app.get('/orders/:userId', async (req, res) => {
   }
 });
 
-// User registration
-app.post('/register', async (req, res) => {
-  const { username, email, password } = req.body;
-
-  const hashedPassword = await bcrypt.hash(password, 10);
+// API endpoint to add a user
+app.post('/user/create', async (req, res) => {
+  const { name, email, password, province, city, mobile, address } = req.body;
 
   try {
-    const user = await prisma.user.create({
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user in the database
+    const newUser = await prisma.UserReg.create({
       data: {
-        username,
+        name,
         email,
         password: hashedPassword,
+        province,
+        city,
+        mobile,
+        address,
       },
     });
-    res.status(201).json(user);
+
+    res.status(201).json(newUser);
   } catch (error) {
+    if (error.code === 'P2002') {
+      // Handle unique constraint violation (duplicate email)
+      return res.status(400).json({ error: 'Email already exists' });
+    }
     console.error(error);
-    res.status(500).send('An error occurred while registering the user');
+    res.status(500).json({ error: 'An error occurred while creating the user' });
   }
 });
 
+
+
 // User login
-app.post('/login', async (req, res) => {
+app.post('/user/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.UserReg.findUnique({
       where: { email },
     });
 
@@ -855,8 +868,8 @@ app.post('/login', async (req, res) => {
       return res.status(401).send('Invalid email or password');
     }
 
-    const token = jwt.sign({ id: user.id }, jwtkey, { expiresIn: '1h' });
-    res.status(200).json({ token });
+    const Sectoken = jwt.sign({ id: user.id }, jwtkey, { expiresIn: '1h' });
+    res.status(200).json({ Sectoken,user });
   } catch (error) {
     console.error(error);
     res.status(500).send('An error occurred while logging in');
