@@ -736,7 +736,46 @@ app.post('/cart', async (req, res) => {
     res.status(500).send('An error occurred while adding the item to the cart');
   }
 });
+app.get('/Products', verifyToken, async (req, res) => {
+  try {
+    // Fetch products along with related sizes, colors (with colorId), brand, and category
+    const products = await prisma.product.findMany({
+      include: {
+        sizes: true, // Include shoe sizes
+        colors: {   // Fetch ProductColor with Color details
+          include: {
+            color: true, // Include the actual color details from the Color table
+          },
+        },
+        brand: true, // Include brand details
+        category: true, // Include category details
+      },
+    });
 
+    // Return the list of products with all their related details
+    res.json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Failed to fetch products" });
+  }
+});
+app.get('/Categories', verifyToken, async (req, res) => {
+  try {
+    const categories = await prisma.category.findMany();
+    res.status(200).json(categories);
+  } catch (error) {
+    res.status(500).send('An error occurred while fetching categories.');
+  }
+});
+app.get('/Brands', verifyToken, async (req, res) => {
+  try {
+    const brands = await prisma.brand.findMany();
+    res.status(200).json(brands);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch brands' });
+  }
+});
 // Get all items in the user's cart
 app.get('/cart/:userId', async (req, res) => {
   const { userId } = req.params;

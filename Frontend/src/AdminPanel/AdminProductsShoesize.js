@@ -24,7 +24,11 @@ const AdminProductsShoesize = () => {
 
   const fetchShoeSizes = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/AdminPanel/Product/AllShoesizes');
+      const response = await axios.get('http://localhost:4000/AdminPanel/Product/AllShoesizes',{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
       setShoeSizes(response.data);
     } catch (error) {
       console.error('Error fetching shoe sizes:', error);
@@ -83,7 +87,11 @@ const AdminProductsShoesize = () => {
 
   const handleDelete = async (shoeSizeId) => {
     try {
-      await axios.delete(`http://localhost:4000/AdminPanel/Product/Shoesize/${shoeSizeId}`);
+      await axios.delete(`http://localhost:4000/AdminPanel/Product/Shoesize/${shoeSizeId}`,{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
       setMessage('Shoe size deleted successfully.');
       fetchShoeSizes();
     } catch (error) {
@@ -105,6 +113,10 @@ const AdminProductsShoesize = () => {
       await axios.put(`http://localhost:4000/AdminPanel/Product/Shoesize/${shoeSizeId}`, {
         size: editSize,
         stock: editStock,
+      },{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
       setMessage('Shoe size updated successfully.');
       setEditingShoeSizeId(null); // Exit edit mode

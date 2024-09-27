@@ -17,7 +17,11 @@ const ManageProducts = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/AdminPanel/Products');
+                const response = await axios.get('http://localhost:4000/AdminPanel/Products',{
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                      },
+                });
                 setProducts(response.data);
                 setLoading(false);
             } catch (err) {
@@ -31,7 +35,11 @@ const ManageProducts = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:4000/AdminPanel/DeleteProduct/${id}`);
+            await axios.delete(`http://localhost:4000/AdminPanel/DeleteProduct/${id}`,{
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                  },
+            });
             setProducts(products.filter((product) => product.id !== id));
         } catch (error) {
             console.error('Error deleting product:', error);
@@ -71,6 +79,8 @@ const ManageProducts = () => {
                 {
                     headers: {
                         'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        
                     },
                 }
             );

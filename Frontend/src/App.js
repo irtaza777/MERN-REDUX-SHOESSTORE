@@ -15,6 +15,7 @@ import ManageProducts from './AdminPanel/ManageProducts';
 import LandingPage from './Components/LandingPage/LandingPage';
 import Navbar from './Components/Navbar/Navbar';
 import UserAuthentication from './Components/UserAuthentication/UserAuthentication';
+import Products from './Components/Products/Products';
 
 const App = () => {
   // Custom hook to determine if we're on an admin route
@@ -44,6 +45,7 @@ const App = () => {
 
         <Route path="/" element={<LandingPage />} /> {/* Add route for landing page */}
         <Route path="/UserAuthentication" element={<UserAuthentication />} /> {/* Add route for landing page */}
+        <Route path="/Products" element={<Products />} /> {/* Add route for landing page */}
       </Routes>
     </>
   );
