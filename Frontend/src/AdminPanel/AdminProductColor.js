@@ -24,7 +24,11 @@ const AdminProductColor = () => {
   // Fetch colors from the API
   const fetchColors = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/AdminPanel/Product/AllColor');
+      const response = await axios.get('http://localhost:4000/AdminPanel/Product/AllColor',{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
       setColors(response.data);
     } catch (error) {
       console.error('Error fetching colors:', error);
@@ -35,7 +39,11 @@ const AdminProductColor = () => {
   // Fetch product-color pairs from the API
   const fetchProductColors = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/AdminPanel/Product/AllProductsColor'); // Adjust API endpoint
+      const response = await axios.get('http://localhost:4000/AdminPanel/Product/AllProductsColor',{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      }); // Adjust API endpoint
      console.log(response)
       setProductColors(response.data);
     } catch (error) {
@@ -56,7 +64,11 @@ const AdminProductColor = () => {
     try {
       if (editProductColorId) {
         // Edit existing product-color pair
-        const response = await axios.put(`http://localhost:4000/AdminPanel/Product/ProductColor/${editProductColorId}`, {
+        const response = await axios.put(`http://localhost:4000/AdminPanel/Product/ProductColor/${editProductColorId}`,{
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }, {
           productId: selectedProductId,
           colorId: selectedColorId,
         });
@@ -66,6 +78,10 @@ const AdminProductColor = () => {
         const response = await axios.post('http://localhost:4000/AdminPanel/Product/ProductColor', {
           productId: selectedProductId,
           colorId: selectedColorId,
+        },{
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
         });
         setMessage(`Successfully added color to product!`);
       }
@@ -85,7 +101,11 @@ const AdminProductColor = () => {
   // Handle delete product-color pair
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/AdminPanel/Product/ProductColor/${id}`);
+      await axios.delete(`http://localhost:4000/AdminPanel/Product/ProductColor/${id}`,{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
       setMessage('Product color deleted successfully.');
       fetchProductColors();
       setTimeout(() => setMessage(''), 5000);

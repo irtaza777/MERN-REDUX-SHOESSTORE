@@ -86,7 +86,7 @@ const UserAuthentication = () => {
         const { Sectoken, user } = response.data;
         setLoginMessage('Login successful!'); // Success message
         localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('token', Sectoken);
+        localStorage.setItem('sectoken', Sectoken);
         //navigate('/adminpanel/dashboard');
       }
     } catch (error) {

@@ -1,0 +1,23 @@
+/* Add this in your global CSS or a CSS module */
+@media (max-width: 768px) {
+    /* Adjust the layout for smaller screens */
+    aside {
+        width: 100%;
+    }
+
+    main {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .grid {
+        grid-template-columns: repeat(2, 1fr); /* Adjust for smaller grids */
+    }
+}
+
+@media (max-width: 640px) {
+    /* Single-column layout on very small screens */
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
