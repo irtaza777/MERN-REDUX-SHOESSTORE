@@ -776,33 +776,178 @@ app.get('/Brands', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch brands' });
   }
 });
-// Get all items in the user's cart
-app.get('/cart/:userId', async (req, res) => {
-  const { userId } = req.params;
+// Add product to cart
+app.post('/AddToCart', async (req, res) => {
+  console.log("HITTTTTTTTT");
+  const { userId, productId, name, price, imageUrl, selectedColor, selectedSize } = req.body;
+  console.log(selectedSize);
 
   try {
-    const cart = await prisma.cart.findUnique({
-      where: { userId: parseInt(userId) },
-      include: {
-        items: {
-          include: {
-            product: true,
-            size: true
-          }
-        }
+      // Check if the user already has a cart
+      let cart = await prisma.Cart.findFirst({
+          where: { userId: parseInt(userId, 10) }
+      });
+
+      // If no cart exists, create a new one
+      if (!cart) {
+          cart = await prisma.Cart.create({
+              data: {
+                  userId: parseInt(userId, 10),
+              },
+          });
       }
-    });
 
-    if (!cart) {
-      return res.status(404).json({ message: 'Cart not found' });
-    }
+      // Find the ShoeSize based on the selected size and productId
+      const shoeSize = await prisma.ShoeSize.findFirst({
+          where: {
+              size: parseFloat(selectedSize),
+              productId: parseInt(productId, 10)
+          }
+      });
 
-    res.status(200).json(cart);
+      // If the size doesn't exist, return an error
+      if (!shoeSize) {
+          return res.status(400).json({ error: 'Selected size does not exist for this product' });
+      }
+
+      // Check if the item already exists in the cart (same product, size, and color)
+      const existingCartItem = await prisma.CartItem.findFirst({
+          where: {
+              cartId: cart.id,
+              productId: parseInt(productId, 10),
+              sizeId: shoeSize.id,
+              color: selectedColor
+          }
+      });
+
+      // If the item already exists in the cart, return a message
+      if (existingCartItem) {
+          return res.status(400).json({ error: 'Item already exists in the cart with the same size and color' });
+      }
+
+      // Add the item to the CartItem table with the correct sizeId
+      const cartItem = await prisma.CartItem.create({
+          data: {
+              cartId: cart.id,
+              productId: parseInt(productId, 10),
+              price: parseFloat(price),
+              imageUrl,
+              quantity:1,
+              color: selectedColor,
+              sizeId: shoeSize.id, // Use the sizeId from the found ShoeSize
+          },
+      });
+
+      console.log(cartItem);
+      res.status(201).json({ message: 'Item added to cart', cartItem });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred while fetching the cart');
+      console.error('Error adding to cart:', error);
+      res.status(500).json({ error: 'Failed to add item to cart' });
   }
 });
+// Get cart count for a user
+app.get('/GetCartCount/:userId', async (req, res) => {
+  let { userId } = req.params;
+  userId=parseInt(userId,10)
+  try {
+      const cart = await prisma.Cart.findUnique({
+          where: { userId },
+          include: { items: true } // Include cart items
+      });
+
+      const count = cart ? cart.items.reduce((acc, item) => acc + item.quantity, 0) : 0;
+      res.json({ count });
+  } catch (error) {
+      console.error("Error fetching cart count:", error);
+      res.status(500).json({ error: "Server error" });
+  }
+});
+// Fetch the cart items for the current user
+app.get('/GetCart/:userId', async (req, res) => {
+  const userId = parseInt(req.params.userId, 10);
+
+  try {
+    // Fetch the cart items for the user, including associated product details, sizes, and colors
+    const cartItems = await prisma.cartItem.findMany({
+      where: {
+        cart: {
+          userId: userId,
+        },
+      },
+      include: {
+        product: {
+          include: {
+            
+            sizes: true,  // Include available sizes for the product
+            colors: {
+              include: {
+                color: true,  // Include color information
+              },
+            },
+          },
+        },
+        size: true,  // Include size of the product
+      },
+    });
+
+    // If no cart items found
+    //if (!cartItems || cartItems.length === 0) {
+     // return res.status(404).json({ message: 'Cart is empty.' });
+    //}
+
+    // Send back the cart items
+    res.status(200).json(cartItems);
+  } catch (error) {
+    console.error('Error fetching cart items:', error);
+    res.status(500).json({ error: 'Failed to fetch cart items' });
+  }
+});
+// Update cart item quantity
+app.patch('/UpdateCartItem/:itemId', async (req, res) => {
+  try {
+    const { itemId } = req.params;
+    const { quantity } = req.body;
+
+    const updatedCartItem = await prisma.CartItem.update({
+      where: { id: parseInt(itemId) },
+      data: { quantity },
+    });
+
+    res.json(updatedCartItem);
+  } catch (error) {
+    console.error('Error updating cart item quantity:', error);
+    res.status(500).json({ message: 'Error updating cart item quantity' });
+  }
+});
+app.delete('/DeleteCartItem/:id', async (req, res) => {
+  console.log("Delete hit");
+  const { id } = req.params;
+
+  try {
+      // First, delete the CartItem
+      const deletedItem = await prisma.CartItem.delete({
+          where: { id: Number(id) },
+      });
+
+      // Check if the cart has any remaining items
+      const cartItems = await prisma.CartItem.findMany({
+          where: { cartId: deletedItem.cartId },
+      });
+
+      // If no items left, delete the Cart
+      if (cartItems.length === 0) {
+          await prisma.Cart.delete({
+              where: { id: deletedItem.cartId },
+          });
+      }
+
+      res.status(200).json({ message: 'Item deleted from cart' });
+  } catch (error) {
+      console.error("Failed to delete item from cart:", error);
+      res.status(500).json({ error: 'Failed to delete item from cart' });
+  }
+});
+
 
 // Create an order
 app.post('/orders', async (req, res) => {
@@ -828,6 +973,24 @@ app.post('/orders', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send('An error occurred while creating the order');
+  }
+});
+// fetch cart for current user
+app.get('/GetCart/:userId', verifyToken, async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const cart = await prisma.cart.findMany({
+      where: {
+        userId: parseInt(userId,10 )// Match the userId
+      },
+    });
+
+
+    res.status(200).json(cart);
+  } catch (error) {
+    console.error('Error fetching cart:', error);
+    res.status(500).json({ message: 'Error fetching cart' });
   }
 });
 

@@ -15,11 +15,11 @@ model User {
   email     String    @unique
   password  String
   name      String
-  cart      Cart?
   orders    Order[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
+
 model UserReg {
   id        Int      @id @default(autoincrement()) // Unique identifier with auto-increment
   name      String   @db.VarChar(100)              // Name field with validation for max length
@@ -31,8 +31,17 @@ model UserReg {
   address   String   @db.VarChar(255)              // Address of the user
   createdAt DateTime @default(now())               // Automatically set creation time
   updatedAt DateTime @updatedAt                    // Automatically set update time
+  cart      Cart?
 }
 
+model Cart {
+  id        Int       @id @default(autoincrement())
+  user      UserReg   @relation(fields: [userId], references: [id]) // Reference to UserReg model
+  userId    Int       @unique
+  items     CartItem[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
 
 model Category {
   id        Int       @id @default(autoincrement())
@@ -80,15 +89,6 @@ model ShoeSize {
   orderItems OrderItem[] // Back-reference to OrderItem
 }
 
-model Cart {
-  id        Int       @id @default(autoincrement())
-  user      User      @relation(fields: [userId], references: [id])
-  userId    Int       @unique
-  items     CartItem[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-}
-
 model CartItem {
   id        Int       @id @default(autoincrement())
   cart      Cart      @relation(fields: [cartId], references: [id])
@@ -97,7 +97,10 @@ model CartItem {
   productId Int
   size      ShoeSize  @relation(fields: [sizeId], references: [id])
   sizeId    Int
-  quantity  Int
+  quantity  Int?      // Made quantity optional
+  price     Float
+  color     String
+  imageUrl  String
   createdAt DateTime  @default(now())
 }
 
@@ -126,18 +129,19 @@ model OrderItem {
 }
 
 model Color {
-  id    Int     @id @default(autoincrement())
-  name  String  @unique
-  products ProductColor[]
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  products  ProductColor[]
 }
 
 model ProductColor {
-  id        Int      @id @default(autoincrement())
-  product   Product  @relation(fields: [productId], references: [id])
+  id        Int       @id @default(autoincrement())
+  product   Product   @relation(fields: [productId], references: [id])
   productId Int
-  color     Color    @relation(fields: [colorId], references: [id])
+  color     Color     @relation(fields: [colorId], references: [id])
   colorId   Int
 }
+
 model Admin {
   id        Int       @id @default(autoincrement())
   email     String    @unique
