@@ -10,15 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String
-  name      String
-  orders    Order[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-}
 
 model UserReg {
   id        Int      @id @default(autoincrement()) // Unique identifier with auto-increment
@@ -32,6 +23,8 @@ model UserReg {
   createdAt DateTime @default(now())               // Automatically set creation time
   updatedAt DateTime @updatedAt                    // Automatically set update time
   cart      Cart?
+    orders    Order[]
+
 }
 
 model Cart {
@@ -106,7 +99,7 @@ model CartItem {
 
 model Order {
   id        Int       @id @default(autoincrement())
-  user      User      @relation(fields: [userId], references: [id])
+  user      UserReg      @relation(fields: [userId], references: [id])
   userId    Int
   items     OrderItem[]
   total     Float
