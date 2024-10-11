@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch } from 'react-redux';
 import { deleteCartItemAsync } from '../../Store/cartslice'; // Adjust the import path accordingly
+import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
 
 const Cart = () => {
     const [cartItems, setCartItems] = useState([]);
@@ -11,6 +12,7 @@ const Cart = () => {
     const [error, setError] = useState(null);
     const [totalPrice, setTotalPrice] = useState(0);
     const dispatch = useDispatch();
+    const navigate = useNavigate(); // Initialize the navigate function
 
     useEffect(() => {
         const fetchCartItems = async () => {
@@ -97,6 +99,11 @@ const Cart = () => {
     if (cartItems.length === 0) {
         return <div className="text-center text-lg py-4">Your cart is empty!</div>;
     }
+     // Handle checkout process
+     const handleCheckout = () => {
+        navigate('/checkout'); // Navigate to the Checkout component
+    };
+
 
     return (
         <div className="container w-1/2 mx-auto py-6 px-4">
@@ -154,6 +161,13 @@ const Cart = () => {
             <div className="mt-8">
                 <h2 className="text-2xl font-semibold text-center">Total Price: ${totalPrice.toFixed(2)}</h2>
             </div>
+             {/* Checkout Button */}
+             <button
+                    className="mt-4 p-2 text-center bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    onClick={handleCheckout}
+                >
+                    Checkout
+                </button>
         </div>
     );
 };
