@@ -66,14 +66,13 @@ const LandingPage = () => {
             <section id="products" className="py-16">
                 <div className="container mx-auto px-4">
                     <h2 className="text-3xl font-extrabold text-center mb-12 text-gray-800">Featured Products</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-5 gap-8">
                         {products.map((product) => (
                             <div key={product.id} className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
                                 <img src={product.imageUrl} alt={product.name} className="w-full h-64 object-cover" />
                                 <div className="p-4">
                                     <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
                                     <p className="text-lg font-bold text-gray-700 mt-2">${product.price}</p>
-                                    <a href="#" className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-full mt-4 inline-block">Buy Now</a>
                                 </div>
                             </div>
                         ))}
