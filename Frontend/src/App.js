@@ -19,6 +19,8 @@ import Products from './Components/Products/Products';
 import Cart from './Components/Cart/Cart';
 import Checkout from './Components/Checkout/Checkout';
 import Ordercomfirmed from './Components/Ordercomfirmed/Ordercomfirmed';
+import Profile from './Components/User/Profile/Profile';
+import Order from './Components/User/Orders/Order';
 
 const App = () => {
   // Custom hook to determine if we're on an admin route
@@ -52,6 +54,8 @@ const App = () => {
         <Route path="/cart" element={<Cart />} /> {/* Add route for landing page */}
         <Route path="/Checkout" element={<Checkout />} /> {/* Checkout route */}
         <Route path="/Ordercomfirmed" element={<Ordercomfirmed />} /> {/* Checkout route */}
+        <Route path="/User/Profile" element={<Profile />} />
+        <Route path="/User/Order" element={<Order />} />
 
       </Routes>
     </>

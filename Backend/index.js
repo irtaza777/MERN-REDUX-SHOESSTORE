@@ -1001,19 +1001,19 @@ app.post('/CreateOrder', async (req, res) => {
       },
     });
 
-    
-// Step 4: Clear the cartitem and cart userid
+
+    // Step 4: Clear the cartitem and cart userid
 
     await prisma.CartItem.deleteMany({
       where: {
         cartId: cart.id,  // Use the cart id
       },
     });
-await prisma.Cart.delete({
-  where: {
-     userId: parseInt(userId),  // Use the cart id
-  },
-});
+    await prisma.Cart.delete({
+      where: {
+        userId: parseInt(userId),  // Use the cart id
+      },
+    });
     // Step 4: Return success response with the created order
     res.status(201).json({ message: 'Order placed successfully', newOrder });
   } catch (error) {
@@ -1073,15 +1073,17 @@ app.get('/orders/:userId', async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const orders = await prisma.order.findMany({
+    // Fetching orders with related order items and user information
+    const orders = await prisma.Order.findMany({
       where: { userId: parseInt(userId) },
       include: {
-        items: {
+        items: {  // Include order items (orderitem)
           include: {
-            product: true,
-            size: true
+            product: true, // Include product details from orderitem
+            size: true     // Include size details from orderitem
           }
-        }
+        },
+        user: true  // Include user details (correct relation)
       }
     });
 
@@ -1092,6 +1094,48 @@ app.get('/orders/:userId', async (req, res) => {
   }
 });
 
+// GET user by ID
+app.get('/users/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await prisma.UserReg.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+// PUT update user by ID
+app.put('/UpdateUser/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, email, province, city, mobile, address } = req.body;
+
+  try {
+    const updatedUser = await prisma.UserReg.update({
+      where: { id: Number(id) },
+      data: { name, email, province, city, mobile, address },
+    });
+
+    // Optionally exclude the password field when sending updated user data
+    const { password, ...userData } = updatedUser;
+
+    res.json(userData);
+  } catch (error) {
+    console.error('Error updating user:', error);
+    if (error.code === 'P2002') {
+      // This is a unique constraint violation error
+      return res.status(400).json({ error: 'Email already in use' });
+    }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 // API endpoint to add a user
 app.post('/user/create', async (req, res) => {
   const { name, email, password, province, city, mobile, address } = req.body;
