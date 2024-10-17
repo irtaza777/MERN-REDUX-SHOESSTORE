@@ -83,7 +83,7 @@ const LandingPage = () => {
             {/* Categories Section */}
             <section id="categories" className="p-16 bg-gray-50 justify-between">
                 <div className="container mx-auto px-4">
-                    <h2 className="text-3xl font-extrabold text-center mb-12 text-gray-800">Shop by Category</h2>
+                    <h2 className="text-3xl font-extrabold text-center mb-12 text-gray-800">All Categories</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8">
                         {categories.map((category) => (
                             <div key={category.id} className="bg-white shadow-md rounded-lg p-6 text-center">
@@ -100,7 +100,7 @@ const LandingPage = () => {
             {/* Brands Section */}
             <section id="brands" className="py-16 bg-gray-100">
                 <div className="container mx-auto px-4">
-                    <h2 className="text-3xl font-extrabold text-center mb-12 text-gray-800">Shop by Brand</h2>
+                    <h2 className="text-3xl font-extrabold text-center mb-12 text-gray-800">All Brands</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                         {brands.map((brand) => (
                             <div key={brand.id} className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { clearAdmin } from '../Store/adminslice';
+import { clearAdmin } from '../../Store/adminslice';
 import { useDispatch, useSelector } from 'react-redux';
 
 const AdminNavbar = () => {
@@ -80,7 +80,7 @@ const AdminNavbar = () => {
           </li>
 
           <li><Link to="/adminpanel/orders" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Orders</Link></li>
-          <li><Link to="/adminpanel/users" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Users</Link></li>
+          <li><Link to="/adminpanel/Adminusers"className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Users</Link></li>
 
           <li className="nav-item">
             {admin ? (
@@ -138,8 +138,8 @@ const AdminNavbar = () => {
             )}
           </li>
 
-          <li><Link to="/adminpanel/orders" className="block px-4 py-2 hover:bg-gray-700">Orders</Link></li>
-          <li><Link to="/adminpanel/users" className="block px-4 py-2 hover:bg-gray-700">Users</Link></li>
+          <li><Link to="/adminpanel/Orders" className="block px-4 py-2 hover:bg-gray-700">Orders</Link></li>
+          <li><Link to="/adminpanel/Adminusers" className="block px-4 py-2 hover:bg-gray-700">Users</Link></li>
         </ul>
       </div>
     </nav>

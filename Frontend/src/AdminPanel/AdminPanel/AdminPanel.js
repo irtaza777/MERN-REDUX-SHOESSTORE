@@ -1,7 +1,7 @@
 // src/adminpanel/AdminPanel.js
 
 import React from 'react';
-import AdminNavbar from './AdminNavbar';
+import AdminNavbar from '../AdminNavbar/AdminNavbar';
 import { Outlet } from 'react-router-dom';
 
 const AdminPanel = () => {

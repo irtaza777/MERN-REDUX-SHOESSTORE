@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addCategoryAsync } from '../Store/adminslice';
+import { addCategoryAsync } from '../../Store/adminslice';
 
 const AddCategory = () => {
     const [categoryData, setCategoryData] = useState({
