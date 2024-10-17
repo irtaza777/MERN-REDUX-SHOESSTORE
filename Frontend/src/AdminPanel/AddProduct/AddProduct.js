@@ -92,6 +92,17 @@ const AddProduct = () => {
             if (response.meta.requestStatus === 'fulfilled') {
                 setMessage('Product added successfully!');
                 //navigate('/adminpanel/products');
+                 // Reset the form data and imageFile state after successful submission
+            setFormData({
+                name: '',
+                description: '',
+                price: '',
+                stock: '',
+                sizes: [],
+                categoryId: '',
+                brandId: ''
+            });
+            setImageFile(null); // Clear the image file state if any
             }
         } catch (error) {
             console.error('Error adding product:', error);

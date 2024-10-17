@@ -688,7 +688,7 @@ app.get('/LandingPage/Products', async (req, res) => {
   try {
     // Fetch 8 random products
     const products = await prisma.product.findMany({
-      take: 8, // Limit to 8 products
+      take: 10, // Limit to 8 products
       orderBy: {
         // This will randomize the products
         id: 'asc'  // If your DB supports random ordering, you could use something like `orderBy: { random: true }`. Otherwise, this is a simple solution.

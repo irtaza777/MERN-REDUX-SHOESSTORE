@@ -21,41 +21,42 @@ const Products = () => {
 
     const dispatch = useDispatch();
     // Fetch products, categories, and brands
+    const fetchData = async () => {
+        try {
+            // Fetch products
+            const productsResponse = await axios.get('http://localhost:4000/Products', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
+                },
+            });
+            setProducts(productsResponse.data);
+            setFilteredProducts(productsResponse.data); // Set initial filtered products
+
+            // Fetch categories
+            const categoriesResponse = await axios.get('http://localhost:4000/Categories', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
+                },
+            });
+            setCategories(categoriesResponse.data);
+
+            // Fetch brands
+            const brandsResponse = await axios.get('http://localhost:4000/Brands', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
+                },
+            });
+            setBrands(brandsResponse.data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Fetch products
-                const productsResponse = await axios.get('http://localhost:4000/Products', {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
-                    },
-                });
-                setProducts(productsResponse.data);
-                setFilteredProducts(productsResponse.data); // Set initial filtered products
-
-                // Fetch categories
-                const categoriesResponse = await axios.get('http://localhost:4000/Categories', {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
-                    },
-                });
-                setCategories(categoriesResponse.data);
-
-                // Fetch brands
-                const brandsResponse = await axios.get('http://localhost:4000/Brands', {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
-                    },
-                });
-                setBrands(brandsResponse.data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
+        // Fetch initial data when component mounts
         fetchData();
-    }, []);
-
+    }, []); // Empty dependency array ensures it only runs on mount
+    
     // Handle adding product to cart
     const addToCart = async (product) => {
         const { color, size } = selectedOptions[product.id] || {}; // Get selected color and size
