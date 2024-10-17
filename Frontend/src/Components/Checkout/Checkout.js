@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
-
+import { useDispatch } from 'react-redux';
+import { submitOrderAsync } from '../../Store/cartslice';
 const Checkout = () => {
+    const dispatch=useDispatch();
     const [cartItems, setCartItems] = useState([]);
     const [userDetails, setUserDetails] = useState({
         name: '',
@@ -68,14 +70,15 @@ const Checkout = () => {
                
             };
 
-            await axios.post('http://localhost:4000/CreateOrder', orderData, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
-                },
-            });
+           const resultAction = await dispatch(submitOrderAsync(orderData));
 
-            // Handle success (e.g., redirect to a confirmation page)
-            navigate('/ordercomfirmed')
+        if (submitOrderAsync.fulfilled.match(resultAction)) {
+            navigate('/ordercomfirmed'); // Navigate on success
+            //window.location.reload(); // Refresh the app if needed
+        } else {
+            console.error('Order submission failed:', error);
+        }
+
         } catch (error) {
             console.error('Order submission failed:', error);
         }

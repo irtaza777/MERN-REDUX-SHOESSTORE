@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteBrandAsync, updateBrandAsync, fetchBrandsAsync } from '../Store/adminslice';
+import { deleteBrandAsync, updateBrandAsync, fetchBrandsAsync } from '../../Store/adminslice';
 
 const ManageBrands = () => {
   const dispatch = useDispatch();

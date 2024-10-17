@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // For navigation
 import { useDispatch, useSelector } from 'react-redux';
-import { addBrandAsync } from '../Store/adminslice'; // Import the thunk
+import { addBrandAsync } from '../../Store/adminslice'; // Import the thunk
 
 const AddBrand = () => {
   const [brandName, setBrandName] = useState(''); // State to hold brand name

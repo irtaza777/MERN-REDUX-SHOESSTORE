@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import { fetchProductsAsync } from '../Store/adminslice'; // Import necessary actions
+import { fetchProductsAsync } from '../../Store/adminslice'; // Import necessary actions
 
 const AdminProductColor = () => {
   const [colors, setColors] = useState([]); // State to store colors

@@ -59,7 +59,6 @@ const Navbar = () => {
                         <Link to="/" className="text-gray-600 hover:text-indigo-600">Home</Link>
                         {isAuthenticated ? (
                             <>
-                                <Link to="/categories" className="text-gray-600 hover:text-indigo-600">Categories</Link>
                                 <Link to="/Products" className="text-gray-600 hover:text-indigo-600">Products</Link>
                                 <Link to="/cart" className="flex items-center text-blue-500 mt-1 rounded-full text-lg">
                                     {/* FontAwesome Cart Icon */}
@@ -105,7 +104,6 @@ const Navbar = () => {
                 {/* Mobile Menu */}
                 <div className={`md:hidden ${isOpen ? 'block' : 'hidden'}`}>
                     <Link to="/" className="block text-gray-600 hover:bg-gray-200 px-4 py-2">Home</Link>
-                    <Link to="/categories" className="block text-gray-600 hover:bg-gray-200 px-4 py-2">Categories</Link>
                     <Link to="/Products" className="block text-gray-600 hover:bg-gray-200 px-4 py-2">Products</Link>
                     <Link to="/cart" className="flex items-center justify-between text-blue-500 mt-1 px-4 py-2">
                         {/* Cart Icon for Mobile */}

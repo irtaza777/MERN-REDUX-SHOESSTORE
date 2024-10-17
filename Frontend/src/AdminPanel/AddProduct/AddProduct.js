@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { addProductAsync, fetchBrandsAsync, fetchCategoriesAsync } from '../Store/adminslice';
+import { addProductAsync, fetchBrandsAsync, fetchCategoriesAsync } from '../../Store/adminslice';
 
 const AddProduct = () => {
     const dispatch = useDispatch();

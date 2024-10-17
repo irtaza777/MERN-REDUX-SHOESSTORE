@@ -45,7 +45,9 @@ const Order = () => {
           <div className="mb-4">
             <h2 className="text-lg font-semibold">Order #{order.id}</h2>
             <p className="text-sm text-gray-500">
-              Placed on {new Date(order.createdAt).toLocaleDateString()}
+            Placed on {new Date(order.createdAt).toLocaleDateString()}
+            <br></br>
+            Placed by {order.user.name}
             </p>
             <p className="text-sm font-medium mt-1">Status: <span className="text-green-500">{order.status}</span></p>
           </div>

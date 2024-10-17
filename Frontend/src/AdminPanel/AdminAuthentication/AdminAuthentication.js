@@ -1,7 +1,7 @@
 import React, { useState } from 'react'; // Import React and useState hook for state management
 import axios from 'axios'; // Import axios for making HTTP requests
 import { useDispatch, useSelector } from 'react-redux'; // Import useDispatch and useSelector for Redux
-import { setAdmin } from '../Store/adminslice'; // Adjust the path as necessary
+import { setAdmin } from '../../Store/adminslice'; // Adjust the path as necessary
 import { useNavigate } from 'react-router-dom';
 
 const AdminAuthentication = () => {

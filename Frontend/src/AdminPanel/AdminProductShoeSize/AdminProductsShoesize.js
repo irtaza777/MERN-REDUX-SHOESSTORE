@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { fetchProductsAsync, addShoeSizesAsync } from '../Store/adminslice';
+import { fetchProductsAsync, addShoeSizesAsync } from '../../Store/adminslice';
 
 const AdminProductsShoesize = () => {
   const dispatch = useDispatch();

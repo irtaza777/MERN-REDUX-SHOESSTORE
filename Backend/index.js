@@ -975,7 +975,7 @@ app.post('/CreateOrder', async (req, res) => {
       data: {
         userId: parseInt(userId),
         total: parseFloat(totalPrice),
-        status: "on",
+        status: "off",
       }
     });
 
@@ -1093,7 +1093,60 @@ app.get('/orders/:userId', async (req, res) => {
     res.status(500).send('An error occurred while fetching the orders');
   }
 });
+// Get all orders for a admin to mange
+app.get('/Adminorders', async (req, res) => {
+  try {
+    // Fetch all orders with related items, product, size, and user info
+    const orders = await prisma.Order.findMany({
+      include: {
+        items: {  // Include order items
+          include: {
+            product: true, // Include product details
+            size: true     // Include size details
+          }
+        },
+        user: true  // Include user details
+      }
+    });
 
+    res.status(200).json(orders); // Return all fetched orders
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while fetching the orders');
+  }
+});
+// Update order status to "on" (dispatch the order)
+app.put('/Dispatchorder/:id', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+      const updatedOrder = await prisma.Order.update({
+          where: { id: parseInt(id) },
+          data: { status },
+      });
+      res.status(200).json(updatedOrder);
+  } catch (error) {
+      console.error('Error updating order status:', error);
+      res.status(500).json({ error: 'Failed to update order status' });
+  }
+});
+//fetch all user for admin
+app.get('/Adminusers', async (req, res) => {
+  try {
+    const user = await prisma.UserReg.findMany({
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 // GET user by ID
 app.get('/users/:id', async (req, res) => {
   const { id } = req.params;

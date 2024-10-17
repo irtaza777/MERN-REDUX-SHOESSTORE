@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {  deleteCategoryAsync, updateCategoryAsync, fetchCategoriesAsync } from '../Store/adminslice'; // Use your async thunks
+import {  deleteCategoryAsync, updateCategoryAsync, fetchCategoriesAsync } from '../../Store/adminslice'; // Use your async thunks
 
 const ManageCategories = () => {
     const [editMode, setEditMode] = useState(null);

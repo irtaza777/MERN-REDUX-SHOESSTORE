@@ -67,6 +67,20 @@ export const deleteCartItemAsync = createAsyncThunk(
         }
     }
 );
+
+export const submitOrderAsync = createAsyncThunk('orders/submit', async (orderData, { rejectWithValue }) => {
+    try {
+        const response = await axios.post('http://localhost:4000/CreateOrder', orderData, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
+            },
+        });
+        return response.data; // Return the response data
+    } catch (error) {
+        return rejectWithValue('Order submission failed');
+    }
+});
+
 // Create a slice of the state
 const cartSlice = createSlice({
     name: 'cart',
@@ -75,6 +89,8 @@ const cartSlice = createSlice({
         cartCount: 0,
         loading: false,
         error: null,
+        orderSubmissionStatus: null, // Track order submission status
+
     },
     
     reducers: {
@@ -120,6 +136,21 @@ const cartSlice = createSlice({
         .addCase(deleteCartItemAsync.rejected, (state, action) => {
             // Handle error case
             state.error = action.payload; // Store the error message
+        })
+        .addCase(submitOrderAsync.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+            state.orderSubmissionStatus = null; // Reset order submission status
+        })
+        .addCase(submitOrderAsync.fulfilled, (state, action) => {
+            state.loading = false;
+            state.orderSubmissionStatus = 'Order submitted successfully'; // Update order submission status
+            state.items = []; // Clear cart items after successful order submission
+            state.cartCount = 0; // Reset cart count
+        })
+        .addCase(submitOrderAsync.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload; // Store error message for order submission
         });
        
     },
