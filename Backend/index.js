@@ -109,7 +109,7 @@ app.post('/AdminPanel/AddCategory', verifyToken, async (req, res) => {
   }
 });
 
-// Backend route for fetching all categories
+// Backend route for fetching all categories for Admin
 app.get('/AdminPanel/AllCategories', verifyToken, async (req, res) => {
   try {
     const categories = await prisma.category.findMany();
@@ -119,7 +119,7 @@ app.get('/AdminPanel/AllCategories', verifyToken, async (req, res) => {
   }
 });
 
-// Update an existing category by ID
+// Update an existing category by ID for Admin
 app.put('/AdminPanel/UpdateCategory/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
@@ -146,7 +146,7 @@ app.put('/AdminPanel/UpdateCategory/:id', verifyToken, async (req, res) => {
   }
 });
 
-// Delete a category by ID
+// Delete a category by ID for Admin
 app.delete('/AdminPanel/DeleteCategory/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
 
@@ -165,7 +165,7 @@ app.delete('/AdminPanel/DeleteCategory/:id', verifyToken, async (req, res) => {
   }
 });
 
-// POST endpoint to add a new brand
+// POST endpoint to add a new brand for Admin
 app.post('/AdminPanel/Brands', upload.single('logo'), verifyToken, async (req, res) => {
   const { name } = req.body;
   let logoUrl;
@@ -215,7 +215,7 @@ app.post('/AdminPanel/Brands', upload.single('logo'), verifyToken, async (req, r
 
 
 
-//  Get All Brands
+//  Get All Brands for Admin
 app.get('/AdminPanel/AllBrands', verifyToken, async (req, res) => {
   try {
     const brands = await prisma.brand.findMany();
@@ -225,7 +225,7 @@ app.get('/AdminPanel/AllBrands', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch brands' });
   }
 });
-//  Delete Brand by ID
+//  Delete Brand by ID for Admin
 app.delete('/AdminPanel/DeleteBrand/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
 
@@ -251,7 +251,7 @@ app.delete('/AdminPanel/DeleteBrand/:id', verifyToken, async (req, res) => {
   }
 });
 
-// Update Brand by ID
+// Update Brand by ID for Admin
 
 app.put('/AdminPanel/UpdateBrand/:id', verifyToken, upload.single('logo'), async (req, res) => {
   const { name } = req.body;
@@ -317,7 +317,7 @@ app.put('/AdminPanel/UpdateBrand/:id', verifyToken, upload.single('logo'), async
 });
 
 
-// Add a new product
+// Add a new product for Admin
 app.post('/AdminPanel/AddProduct', upload.single('image'), verifyToken, async (req, res) => {
 
   const { name, description, price, stock, categoryId, brandId } = req.body;
@@ -386,7 +386,7 @@ app.post('/AdminPanel/AddProduct', upload.single('image'), verifyToken, async (r
 });
 //Shoesize
 
-// In your Express app
+// for Admin, add shoesize for a product
 app.post('/AdminPanel/Product/AddShoesizes', verifyToken, async (req, res) => {
   // Log the entire request body
   const { productId, sizes, stocks } = req.body
@@ -423,7 +423,7 @@ app.post('/AdminPanel/Product/AddShoesizes', verifyToken, async (req, res) => {
   }
 });
 
-// Fetch all shoe sizes across all products
+// Fetch all shoe sizes across all products for Admin
 app.get('/AdminPanel/Product/AllShoesizes', verifyToken, async (req, res) => {
   try {
     const shoeSizes = await prisma.shoeSize.findMany({
@@ -437,7 +437,7 @@ app.get('/AdminPanel/Product/AllShoesizes', verifyToken, async (req, res) => {
   }
 });
 
-// Update shoe size by ID
+// Update shoe size by ID for Admin
 app.put('/AdminPanel/Product/Shoesize/:id', async (req, res) => {
   const { id } = req.params;
   const { size, stock } = req.body;
@@ -457,7 +457,7 @@ app.put('/AdminPanel/Product/Shoesize/:id', async (req, res) => {
   }
 });
 
-// Delete shoe size by ID
+// Delete shoe size by ID for Admin
 app.delete('/AdminPanel/Product/Shoesize/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
 
@@ -470,7 +470,7 @@ app.delete('/AdminPanel/Product/Shoesize/:id', verifyToken, async (req, res) => 
     res.status(500).json({ error: 'Failed to delete shoe size.' });
   }
 });
-// Get all products
+// Get all products for Admin
 app.get('/AdminPanel/Products', verifyToken, async (req, res) => {
   try {
     const products = await prisma.product.findMany();
@@ -480,8 +480,9 @@ app.get('/AdminPanel/Products', verifyToken, async (req, res) => {
     res.status(500).send('An error occurred while fetching the products');
   }
 });
-// Delete product API
-// Delete product API
+
+// Delete product API for Admin
+
 app.delete('/AdminPanel/DeleteProduct/:id', verifyToken, async (req, res) => {
   const productId = parseInt(req.params.id);
 
@@ -508,9 +509,8 @@ app.delete('/AdminPanel/DeleteProduct/:id', verifyToken, async (req, res) => {
   }
 });
 
-// Update a product by ID
+// Update a product by ID for Admin
 
-// Update product route
 app.put('/AdminPanel/UpdateProduct/:id', verifyToken, upload.single('imageUrl'), async (req, res) => {
   const { id } = req.params;
   const { name, price, description, stock } = req.body;
@@ -541,20 +541,7 @@ app.put('/AdminPanel/UpdateProduct/:id', verifyToken, upload.single('imageUrl'),
     res.status(500).json({ error: 'Failed to update product' });
   }
 });
-// Delete a product by ID
-app.delete('/products/:id', verifyToken, async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const deletedProduct = await prisma.product.delete({
-      where: { id: parseInt(id) },
-    });
-    res.status(200).json({ message: 'Product deleted successfully', deletedProduct });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred while deleting the product');
-  }
-});
+// add color for a product for admin
 app.post('/AdminPanel/Product/ProductColor', verifyToken, async (req, res) => {
   // Parse productId and colorId as integers
   const productId = parseInt(req.body.productId, 10);
@@ -578,7 +565,7 @@ app.post('/AdminPanel/Product/ProductColor', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Failed to add color to product.' });
   }
 });
-// GET /api/colors
+// GET /api/colors for admin
 app.get('/AdminPanel/Product/AllColor', verifyToken, async (req, res) => {
   try {
     const colors = await prisma.Color.findMany();
@@ -588,7 +575,8 @@ app.get('/AdminPanel/Product/AllColor', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch colors.' });
   }
 });
-//fetch data from productcolor
+
+//fetch data from productcolor for admin
 app.get('/AdminPanel/Product/AllProductsColor', verifyToken, async (req, res) => {
   try {
     const colors = await prisma.ProductColor.findMany();
@@ -598,7 +586,7 @@ app.get('/AdminPanel/Product/AllProductsColor', verifyToken, async (req, res) =>
     res.status(500).json({ message: 'Failed to fetch colors.' });
   }
 });
-// Delete a product color by ID
+// Delete a product color by ID for admin
 app.delete('/AdminPanel/Product/ProductColor/:id', verifyToken, async (req, res) => {
   const { id } = req.params; // Get the product color ID from the URL params
   try {
@@ -615,7 +603,7 @@ app.delete('/AdminPanel/Product/ProductColor/:id', verifyToken, async (req, res)
     res.status(500).json({ message: 'Failed to delete product color.' });
   }
 });
-// Update a product color by ID
+// Update a product color by ID for admin
 app.put('/AdminPanel/Product/ProductColor/:id', verifyToken, async (req, res) => {
   const { id } = req.params; // Get the product color ID from the URL params
   const { productId, colorId } = req.body; // Get the productId and colorId from the request body
@@ -638,29 +626,61 @@ app.put('/AdminPanel/Product/ProductColor/:id', verifyToken, async (req, res) =>
     res.status(500).json({ message: 'Failed to update product color.' });
   }
 });
-// Products all details
-app.get('/AdminPanel/AllProducts', verifyToken, async (req, res) => {
+// Get all orders for a admin to manage for admin
+app.get('/Adminorders', async (req, res) => {
   try {
-    // Fetch products, along with related sizes and colors
-    const products = await prisma.product.findMany({
+    // Fetch all orders with related items, product, size, and user info
+    const orders = await prisma.Order.findMany({
       include: {
-        sizes: true, // Include shoe sizes
-        colors: {
+        items: {  // Include order items
           include: {
-            color: true, // Include color details
-          },
+            product: true, // Include product details
+            size: true     // Include size details
+          }
         },
-        brand: true, // Optionally, include brand details
-        category: true, // Optionally, include category details
-      },
+        user: true  // Include user details
+      }
     });
 
-    res.json(products);
+    res.status(200).json(orders); // Return all fetched orders
   } catch (error) {
-    console.error("Error fetching products:", error);
-    res.status(500).json({ error: "Failed to fetch products" });
+    console.error(error);
+    res.status(500).send('An error occurred while fetching the orders');
   }
 });
+// Update order status to "on" (dispatch the order) admin
+app.put('/Dispatchorder/:id', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+      const updatedOrder = await prisma.Order.update({
+          where: { id: parseInt(id) },
+          data: { status },
+      });
+      res.status(200).json(updatedOrder);
+  } catch (error) {
+      console.error('Error updating order status:', error);
+      res.status(500).json({ error: 'Failed to update order status' });
+  }
+});
+//fetch all user for admin
+app.get('/Adminusers', async (req, res) => {
+  try {
+    const user = await prisma.UserReg.findMany({
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 //frontend apis
 // landingpage seperate apis
 // Allproducts api
@@ -681,7 +701,8 @@ app.get('/LandingPage/Products', async (req, res) => {
     res.status(500).json({ error: "Failed to fetch products" });
   }
 });
-// Allcats api
+
+// Allcats api for frontend
 
 app.get('/LandingPage/Categories', async (req, res) => {
   try {
@@ -691,7 +712,7 @@ app.get('/LandingPage/Categories', async (req, res) => {
     res.status(500).send('An error occurred while fetching categories.');
   }
 });
-//  Get All Brands
+//  Get All Brands for frontend
 app.get('/LandingPage/Brands', async (req, res) => {
   try {
     const brands = await prisma.brand.findMany();
@@ -701,41 +722,8 @@ app.get('/LandingPage/Brands', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch brands' });
   }
 });
-// Add an item to the cart
-app.post('/cart', async (req, res) => {
-  const { userId, productId, sizeId, quantity } = req.body;
 
-  try {
-    // Check if the user already has a cart
-    let cart = await prisma.cart.findUnique({
-      where: { userId }
-    });
-
-    if (!cart) {
-      // Create a new cart if it doesn't exist
-      cart = await prisma.cart.create({
-        data: {
-          userId,
-        }
-      });
-    }
-
-    // Add the item to the cart
-    const cartItem = await prisma.cartItem.create({
-      data: {
-        cartId: cart.id,
-        productId,
-        sizeId,
-        quantity
-      }
-    });
-
-    res.status(201).json(cartItem);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred while adding the item to the cart');
-  }
-});
+//fetch product with all details for frontend
 app.get('/Products', verifyToken, async (req, res) => {
   try {
     // Fetch products along with related sizes, colors (with colorId), brand, and category
@@ -759,6 +747,8 @@ app.get('/Products', verifyToken, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch products" });
   }
 });
+
+/*
 app.get('/Categories', verifyToken, async (req, res) => {
   try {
     const categories = await prisma.category.findMany();
@@ -775,8 +765,9 @@ app.get('/Brands', verifyToken, async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'Failed to fetch brands' });
   }
-});
-// Add product to cart
+});*/
+
+// Add product to cart for frontend
 app.post('/AddToCart', async (req, res) => {
   console.log("HITTTTTTTTT");
   const { userId, productId, name, price, imageUrl, selectedColor, selectedSize } = req.body;
@@ -845,7 +836,7 @@ app.post('/AddToCart', async (req, res) => {
     res.status(500).json({ error: 'Failed to add item to cart' });
   }
 });
-// Get cart count for a user
+// Get cart count for a user for frontend
 app.get('/GetCartCount/:userId', async (req, res) => {
   let { userId } = req.params;
   userId = parseInt(userId, 10)
@@ -862,7 +853,7 @@ app.get('/GetCartCount/:userId', async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-// Fetch the cart items for the current user
+// Fetch the cart items for the current user for frontend
 app.get('/GetCart/:userId', async (req, res) => {
   const userId = parseInt(req.params.userId, 10);
 
@@ -902,7 +893,7 @@ app.get('/GetCart/:userId', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch cart items' });
   }
 });
-// Update cart item quantity
+// Update cart item quantity for frontend
 app.patch('/UpdateCartItem/:itemId', async (req, res) => {
   try {
     const { itemId } = req.params;
@@ -919,6 +910,7 @@ app.patch('/UpdateCartItem/:itemId', async (req, res) => {
     res.status(500).json({ message: 'Error updating cart item quantity' });
   }
 });
+// delete cart item by itemid for frontend
 app.delete('/DeleteCartItem/:id', async (req, res) => {
   console.log("Delete hit");
   const { id } = req.params;
@@ -948,24 +940,8 @@ app.delete('/DeleteCartItem/:id', async (req, res) => {
   }
 });
 
-app.get('/GetUser/:userId', async (req, res) => {
-  const { userId } = req.params;
-  try {
-    const user = await prisma.userReg.findUnique({
-      where: {
-        id: parseInt(userId),
-      },
-    });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.json(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-// Place an order
+
+// Place an order for frontend
 app.post('/CreateOrder', async (req, res) => {
   const { userId, cartItems, totalPrice } = req.body;
 
@@ -1022,53 +998,7 @@ app.post('/CreateOrder', async (req, res) => {
   }
 });
 
-
-// Create an order
-app.post('/orders', async (req, res) => {
-  const { userId, cartItems } = req.body;
-
-  try {
-    // Create a new order
-    const order = await prisma.order.create({
-      data: {
-        userId,
-        status: 'pending',
-        items: {
-          create: cartItems.map(item => ({
-            productId: item.productId,
-            sizeId: item.sizeId,
-            quantity: item.quantity
-          }))
-        }
-      }
-    });
-
-    res.status(201).json(order);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred while creating the order');
-  }
-});
-// fetch cart for current user
-app.get('/GetCart/:userId', verifyToken, async (req, res) => {
-  const { userId } = req.params;
-
-  try {
-    const cart = await prisma.cart.findMany({
-      where: {
-        userId: parseInt(userId, 10)// Match the userId
-      },
-    });
-
-
-    res.status(200).json(cart);
-  } catch (error) {
-    console.error('Error fetching cart:', error);
-    res.status(500).json({ message: 'Error fetching cart' });
-  }
-});
-
-// Get all orders for a user
+// Get all orders for a user for frontend
 app.get('/orders/:userId', async (req, res) => {
   const { userId } = req.params;
 
@@ -1093,61 +1023,8 @@ app.get('/orders/:userId', async (req, res) => {
     res.status(500).send('An error occurred while fetching the orders');
   }
 });
-// Get all orders for a admin to mange
-app.get('/Adminorders', async (req, res) => {
-  try {
-    // Fetch all orders with related items, product, size, and user info
-    const orders = await prisma.Order.findMany({
-      include: {
-        items: {  // Include order items
-          include: {
-            product: true, // Include product details
-            size: true     // Include size details
-          }
-        },
-        user: true  // Include user details
-      }
-    });
 
-    res.status(200).json(orders); // Return all fetched orders
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred while fetching the orders');
-  }
-});
-// Update order status to "on" (dispatch the order)
-app.put('/Dispatchorder/:id', async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
-
-  try {
-      const updatedOrder = await prisma.Order.update({
-          where: { id: parseInt(id) },
-          data: { status },
-      });
-      res.status(200).json(updatedOrder);
-  } catch (error) {
-      console.error('Error updating order status:', error);
-      res.status(500).json({ error: 'Failed to update order status' });
-  }
-});
-//fetch all user for admin
-app.get('/Adminusers', async (req, res) => {
-  try {
-    const user = await prisma.UserReg.findMany({
-    });
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    res.json(user);
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-// GET user by ID
+// GET user by ID for fronetend 
 app.get('/users/:id', async (req, res) => {
   const { id } = req.params;
   try {
