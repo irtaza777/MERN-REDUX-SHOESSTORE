@@ -460,9 +460,9 @@ app.put('/AdminPanel/Product/Shoesize/:id', async (req, res) => {
 // Delete shoe size by ID for Admin
 app.delete('/AdminPanel/Product/Shoesize/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
-
+console.log(id)
   try {
-    await prisma.shoeSize.delete({
+    await prisma.ShoeSize.delete({
       where: { id: parseInt(id) },
     });
     res.json({ message: 'Shoe size deleted successfully.' });
@@ -748,7 +748,7 @@ app.get('/Products', verifyToken, async (req, res) => {
   }
 });
 
-/*
+//fetch cats for product.js in sidebar frontend
 app.get('/Categories', verifyToken, async (req, res) => {
   try {
     const categories = await prisma.category.findMany();
@@ -757,6 +757,8 @@ app.get('/Categories', verifyToken, async (req, res) => {
     res.status(500).send('An error occurred while fetching categories.');
   }
 });
+//fetch brands for product.js in sidebar frontend
+
 app.get('/Brands', verifyToken, async (req, res) => {
   try {
     const brands = await prisma.brand.findMany();
@@ -765,7 +767,7 @@ app.get('/Brands', verifyToken, async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'Failed to fetch brands' });
   }
-});*/
+});
 
 // Add product to cart for frontend
 app.post('/AddToCart', async (req, res) => {

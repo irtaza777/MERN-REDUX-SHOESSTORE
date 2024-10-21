@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import axiosInstance from '../../../Utils/Interceptor/axios';
 
 const Order = () => {
     const [orders, setOrders] = useState([]); // State to store user orders
@@ -14,7 +15,7 @@ const Order = () => {
         // Fetch user orders from the API when the component mounts
         const fetchOrders = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/orders/${userId}`); // Adjust the API endpoint as needed
+                const response = await axiosInstance.get(`/orders/${userId}`); // Adjust the API endpoint as needed
                 console.log(response)
                 setOrders(response.data); // Store the orders in state
             } catch (error) {

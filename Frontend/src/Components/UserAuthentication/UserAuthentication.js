@@ -75,31 +75,44 @@ const UserAuthentication = () => {
 
   // Handle login submission
   const handleLoginSubmit = async (e) => {
-    e.preventDefault(); // Prevent the default form submission
-    setLoginLoading(true); // Set loading state to true
-    setLoginMessage(''); // Clear any previous messages
-
+    e.preventDefault(); // Prevent default form submission
+    setLoginLoading(true); // Show loading spinner or disable button
+    setLoginMessage(''); // Clear previous messages
+  
     try {
       const response = await axios.post('http://localhost:4000/user/login', loginFormData);
-
+  
       if (response.status === 200) {
         const { Sectoken, user } = response.data;
-        setLoginMessage('Login successful!'); // Success message
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('sectoken', Sectoken);
-        navigate('/Products');
+        setLoginMessage('Login successful!'); // Display success message
+        localStorage.setItem('user', JSON.stringify(user)); // Store user info
+        localStorage.setItem('sectoken', Sectoken); // Store token
+        navigate('/Products'); // Redirect to products page
       }
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        setLoginMessage('Invalid credentials. Try again.'); // Error message for invalid credentials
+      if (error.response) {
+        // Check for 401 error, which could indicate invalid or expired token
+        if (error.response.status === 401) {
+          // Handle invalid or expired token
+          localStorage.removeItem('sectoken'); // Remove token
+          localStorage.removeItem('user'); // Remove user info
+  
+          const message = error.response.data.message || 'Your session has expired. Please log in again.'; // Fallback message
+  
+          setLoginMessage(message); // Set the message to be displayed in the UI
+          navigate('/Home'); // Redirect to home page
+        } else {
+          setLoginMessage('Invalid credentials. Try again.'); // Handle other errors
+        }
       } else {
-        setLoginMessage('Server error. Try again later.'); // General error
+        console.error('Error during login:', error); // Log error details for debugging
+        setLoginMessage('Server error. Try again later.'); // General error message
       }
-      console.error('Error during login:', error); // Log error
     } finally {
       setLoginLoading(false); // Reset loading state
     }
   };
+  
 
   // Toggle password visibility
   const toggleShowPassword = () => {

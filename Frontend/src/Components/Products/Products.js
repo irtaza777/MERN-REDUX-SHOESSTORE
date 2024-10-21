@@ -4,6 +4,8 @@ import { FiFilter } from 'react-icons/fi'; // Import filter icon from react-icon
 import '../../Css/Products/Products.css'; // Import CSS for posts
 import { useDispatch, useSelector } from 'react-redux';
 import {addToCartAsync} from '../../Store/cartslice'
+import axiosInstance from '../../Utils/Interceptor/axios'; // Import your axios instance
+
 const Products = () => {
     const [products, setProducts] = useState([]); // State for all products
     const [filteredProducts, setFilteredProducts] = useState([]); // State for filtered products
@@ -20,11 +22,11 @@ const Products = () => {
     const [selectedOptions, setSelectedOptions] = useState({}); // State to track selected color and size for each product
 
     const dispatch = useDispatch();
-    // Fetch products, categories, and brands
+    // Fetch products, categories, and brands via interceptor
     const fetchData = async () => {
         try {
             // Fetch products
-            const productsResponse = await axios.get('http://localhost:4000/Products', {
+            const productsResponse = await axiosInstance.get('/Products', {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
                 },
@@ -33,7 +35,7 @@ const Products = () => {
             setFilteredProducts(productsResponse.data); // Set initial filtered products
 
             // Fetch categories
-            const categoriesResponse = await axios.get('http://localhost:4000/Categories', {
+            const categoriesResponse = await axiosInstance.get('/Categories', {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
                 },
@@ -41,7 +43,7 @@ const Products = () => {
             setCategories(categoriesResponse.data);
 
             // Fetch brands
-            const brandsResponse = await axios.get('http://localhost:4000/Brands', {
+            const brandsResponse = await axiosInstance.get('/Brands', {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
                 },
@@ -67,7 +69,7 @@ const Products = () => {
     
         try {
             // Fetch the current user's cart
-            const cartResponse = await axios.get(`http://localhost:4000/GetCart/${JSON.parse(localStorage.getItem('user')).id}`, {
+            const cartResponse = await axiosInstance.get(`/GetCart/${JSON.parse(localStorage.getItem('user')).id}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
                 },
@@ -178,7 +180,7 @@ const Products = () => {
                             <div className="flex justify  flex-wrap">
                                 {categories.map((category) => (
                                     <div key={category.id}
-                                        className="bg-blue-100 p-4 m-1 rounded-full shadow-lg transform transition-transform hover:scale-105 cursor-pointer"
+                                        className="bg-green-800 text-white p-4 m-1 rounded-full shadow-lg transform transition-transform hover:scale-105 cursor-pointer"
                                         onClick={() => handleCategoryClick(category)}>
                                         <span className="text-center text-balance font-medium ">{category.name}</span>
                                     </div>
@@ -192,7 +194,7 @@ const Products = () => {
                             <div className="flex justify  flex-wrap">
                                 {brands.map((brand) => (
                                     <div key={brand.id}
-                                        className="bg-green-100 p-4 m-1 rounded-full shadow-lg transform transition-transform hover:scale-105 cursor-pointer"
+                                        className="bg-green-800 text-white p-4 m-1 rounded-full shadow-lg transform transition-transform hover:scale-105 cursor-pointer"
                                         onClick={() => handleBrandClick(brand)}>
                                         <span className="text-center text-balance font-medium">{brand.name}</span>
                                     </div>
