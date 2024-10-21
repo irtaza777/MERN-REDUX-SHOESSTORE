@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
 import { useDispatch } from 'react-redux';
 import { submitOrderAsync } from '../../Store/cartslice';
+import axiosInstance from '../../Utils/Interceptor/axios'; // Import your axios instance
+
 const Checkout = () => {
     const dispatch=useDispatch();
     const [cartItems, setCartItems] = useState([]);
@@ -22,22 +24,15 @@ const Checkout = () => {
     useEffect(() => {
         const fetchUserAndCartItems = async () => {
             try {
-                const userId = JSON.parse(localStorage.getItem('user')).id;
+                const userId = JSON.parse(localStorage.getItem('user')).id
+                console.log(userId);
 
                 // Fetch user details
-                const userResponse = await axios.get(`http://localhost:4000/GetUser/${userId}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
-                    },
-                });
+                const userResponse = await axiosInstance.get(`/users/${userId}`)
                 setUserDetails(userResponse.data);  // Pre-fill user data
 
                 // Fetch cart items
-                const cartResponse = await axios.get(`http://localhost:4000/GetCart/${userId}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('sectoken')}`,
-                    },
-                });
+                const cartResponse = await axiosInstance.get(`/GetCart/${userId}`)
                 console.log(cartResponse)
                 setCartItems(cartResponse.data);
                 calculateTotalPrice(cartResponse.data); // Recalculate total price with fetched items
