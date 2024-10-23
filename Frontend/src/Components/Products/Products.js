@@ -3,7 +3,7 @@ import axios from 'axios';
 import { FiFilter } from 'react-icons/fi'; // Import filter icon from react-icons
 import '../../Css/Products/Products.css'; // Import CSS for posts
 import { useDispatch, useSelector } from 'react-redux';
-import {addToCartAsync} from '../../Store/cartslice'
+import { addToCartAsync } from '../../Store/cartslice'
 import axiosInstance from '../../Utils/Interceptor/axios'; // Import your axios instance
 
 const Products = () => {
@@ -20,7 +20,9 @@ const Products = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false); // State to control sidebar visibility
     const [cart, setCart] = useState([]); // Cart state
     const [selectedOptions, setSelectedOptions] = useState({}); // State to track selected color and size for each product
-
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1); // Current page
+    const [productsPerPage] = useState(8); // Number of products per page
     const dispatch = useDispatch();
     // Fetch products, categories, and brands via interceptor
     const fetchData = async () => {
@@ -58,7 +60,7 @@ const Products = () => {
         // Fetch initial data when component mounts
         fetchData();
     }, []); // Empty dependency array ensures it only runs on mount
-    
+
     // Handle adding product to cart
     const addToCart = async (product) => {
         const { color, size } = selectedOptions[product.id] || {}; // Get selected color and size
@@ -66,7 +68,7 @@ const Products = () => {
             alert("Please select both color and size.");
             return;
         }
-    
+
         try {
             // Fetch the current user's cart
             const cartResponse = await axiosInstance.get(`/GetCart/${JSON.parse(localStorage.getItem('user')).id}`, {
@@ -76,13 +78,13 @@ const Products = () => {
             });
             console.log(cartResponse)
             const userCart = cartResponse.data; // Assuming this returns an array of cart items
-    
+
             // Log cart data for debugging
-    
+
             // Check if the product with the same color and size is already in the cart
-            const productExists = userCart.some(item => 
-                item.productId === product.id && 
-                item.selectedColor === color && 
+            const productExists = userCart.some(item =>
+                item.productId === product.id &&
+                item.selectedColor === color &&
                 item.selectedSize === size
             );
             console.log(productExists)
@@ -91,7 +93,7 @@ const Products = () => {
                 alert("This product is already in your cart.");
                 return;
             }
-    
+
             // If not in cart, add the product
             await dispatch(addToCartAsync({
                 userId: JSON.parse(localStorage.getItem('user')).id,
@@ -109,8 +111,8 @@ const Products = () => {
         }
 
     };
-    
-    
+
+
     // Handle color selection
     const handleColorSelection = (productId, color) => {
         setSelectedOptions((prev) => ({
@@ -159,7 +161,14 @@ const Products = () => {
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
     };
+    // Pagination logic
+    const indexOfLastProduct = currentPage * productsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+    const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+    const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
     return (
         <div className="container mx-auto py-10 flex flex-col">
             <header className="text-center mb-10">
@@ -248,7 +257,7 @@ const Products = () => {
                 <main className={`flex-grow transition-all duration-300 ${sidebarOpen ? 'ml-2' : 'ml-4'}`}>
                     {/* Product Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4 ml-5">
-                        {filteredProducts.map((product) => (
+                        {currentProducts.map((product) => (
                             <div key={product.id} className="bg-slate-100 shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
                                 {/* Product Image */}
                                 <div className="relative">
@@ -301,10 +310,26 @@ const Products = () => {
                                         Add to Cart
                                     </button>
                                 </div>
+                                
                             </div>
+                            
                         ))}
+                        
+                    </div>
+                     {/* Pagination controls */}
+                     <div className="flex justify-center mt-8">
+                        <ul className="flex space-x-2">
+                            {Array.from({ length: totalPages }, (_, index) => (
+                                <li key={index} className={`cursor-pointer ${currentPage === index + 1 ? 'font-bold' : ''}`}>
+                                    <button onClick={() => paginate(index + 1)} className="p-2 border rounded-md">
+                                        {index + 1}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </main>
+                
             </div>
         </div>
     );
